@@ -5,7 +5,7 @@ import {
     Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../src/supabase.js';
+
 import { useCart } from '../../src/context/CartContext.jsx';
 import { useAuth } from '../../src/context/AuthContext.jsx';
 import { PDFDocument } from 'pdf-lib';
@@ -50,7 +50,7 @@ export function NormalPrint({ initialSpecs, title }) {
     const navigate = useNavigate();
 
     const { addToCart } = useCart();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
     const fileInputRef = useRef(null);
 
@@ -64,26 +64,59 @@ export function NormalPrint({ initialSpecs, title }) {
                 return pdfDoc.getPageCount();
             }
 
-            if (['docx', 'dotx'].includes(extension)) {
-                const zip = await JSZip.loadAsync(file);
-                const appXml = await zip.file('docProps/app.xml').async('string');
-                const match = appXml.match(/<Pages>(\d+)<\/Pages>/);
-                return match ? parseInt(match[1]) : 1;
+            if (['docx', 'dotx', 'docm'].includes(extension)) {
+                try {
+                    const zip = await JSZip.loadAsync(file);
+
+                    // Method 1: Check docProps/app.xml (Standard way)
+                    // Use case-insensitive search for the metadata file
+                    const appXmlPath = Object.keys(zip.files).find(path =>
+                        path.toLowerCase() === 'docprops/app.xml'
+                    );
+
+                    if (appXmlPath) {
+                        const appXml = await zip.file(appXmlPath).async('string');
+                        const match = appXml.match(/<Pages>(\d+)<\/Pages>/i);
+                        if (match && parseInt(match[1]) > 0) {
+                            return parseInt(match[1]);
+                        }
+                    }
+
+                    // Method 2: Fallback - count page breaks in word/document.xml
+                    const docXmlPath = Object.keys(zip.files).find(path =>
+                        path.toLowerCase() === 'word/document.xml'
+                    );
+
+                    if (docXmlPath) {
+                        const docXml = await zip.file(docXmlPath).async('string');
+                        // Use multiple indicators for page breaks
+                        const renderedBreaks = (docXml.match(/<w:lastRenderedPageBreak/g) || []).length;
+                        const manualBreaks = (docXml.match(/<w:br\s+[^>]*w:type="page"/g) || []).length;
+                        const detectedPages = Math.max(renderedBreaks, manualBreaks) + 1;
+                        if (detectedPages > 1) return detectedPages;
+                    }
+                } catch (zipError) {
+                    console.warn(`JSZip error for ${file.name}:`, zipError);
+                }
             }
 
             if (['pptx', 'potx'].includes(extension)) {
-                const zip = await JSZip.loadAsync(file);
-                const slideFiles = Object.keys(zip.files).filter(path =>
-                    path.startsWith('ppt/slides/slide') && path.endsWith('.xml')
-                );
-                return slideFiles.length || 1;
+                try {
+                    const zip = await JSZip.loadAsync(file);
+                    const slideFiles = Object.keys(zip.files).filter(path =>
+                        path.toLowerCase().startsWith('ppt/slides/slide') && path.toLowerCase().endsWith('.xml')
+                    );
+                    return slideFiles.length || 1;
+                } catch (zipError) {
+                    console.warn(`JSZip error for ${file.name}:`, zipError);
+                }
             }
 
             if (['jpg', 'jpeg', 'png'].includes(extension)) {
                 return 1;
             }
 
-            return 1; // Default fallback
+            return 1; // Default fallback for .doc and other formats
         } catch (error) {
             console.error(`Error counting pages for ${file.name}:`, error);
             return 1;
@@ -116,7 +149,6 @@ export function NormalPrint({ initialSpecs, title }) {
 
         try {
             const parts = range.split(',').map(p => p.trim());
-            let count = 0;
             const uniquePages = new Set();
 
             parts.forEach(part => {
@@ -127,14 +159,14 @@ export function NormalPrint({ initialSpecs, title }) {
 
                     if (!isNaN(start) && !isNaN(end)) {
                         const s = Math.max(1, Math.min(start, end));
-                        const e = Math.min(maxPages, Math.max(start, end));
+                        const e = Math.max(start, end); // Allow manual override beyond auto-detected max
                         for (let i = s; i <= e; i++) {
                             uniquePages.add(i);
                         }
                     }
                 } else {
                     const page = parseInt(part);
-                    if (!isNaN(page) && page >= 1 && page <= maxPages) {
+                    if (!isNaN(page) && page >= 1) {
                         uniquePages.add(page);
                     }
                 }
@@ -217,7 +249,6 @@ export function NormalPrint({ initialSpecs, title }) {
 
             // Try to get price from API if available
             try {
-                const { data: { user } } = await supabase.auth.getUser();
                 const userType = user?.user_metadata?.user_type?.toLowerCase() || 'regular';
 
                 const response = await fetch(`${API_URL}/api/calculate-price`, {
@@ -285,74 +316,7 @@ export function NormalPrint({ initialSpecs, title }) {
         if (files.length <= 1) setStep(1);
     };
 
-    const handleCheckout = async () => {
-        try {
-            setIsProcessing(true);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                alert('Please login to proceed');
-                return;
-            }
 
-            // 1. Upload files to Supabase Storage and Create Orders
-            for (const fileObj of files) {
-                const fileExt = fileObj.name.split('.').pop();
-                const fileName = `${Math.random()}.${fileExt}`;
-                const filePath = `${user.id}/${fileName}`;
-
-                const { error: uploadError } = await supabase.storage
-                    .from('documents')
-                    .upload(filePath, fileObj.file);
-
-                if (uploadError) throw uploadError;
-
-                const { data: { publicUrl } } = supabase.storage
-                    .from('documents')
-                    .getPublicUrl(filePath);
-
-                // 2. Create Order in print_orders table
-                const { data: order, error: orderError } = await supabase
-                    .from('print_orders')
-                    .insert([{
-                        user_id: user.id,
-                        file_url: publicUrl,
-                        file_name: fileObj.name,
-                        specs: fileObj.settings,
-                        total_cost: fileObj.price,
-                        status: 'pending',
-                        payment_status: 'pending'
-                    }])
-                    .select()
-                    .single();
-
-                if (orderError) throw orderError;
-
-                // 3. Create Stripe Checkout Session via Backend
-                const response = await fetch(`${API_URL}/api/create-checkout-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        orderId: order.id,
-                        userId: user.id,
-                        totalCost: fileObj.price,
-                        specs: fileObj.settings,
-                        fileName: fileObj.name
-                    })
-                });
-
-                const session = await response.json();
-                if (session.url) {
-                    window.location.href = session.url;
-                    return; // Redirecting...
-                }
-            }
-        } catch (error) {
-            console.error('Checkout error:', error);
-            alert('Checkout failed: ' + error.message);
-        } finally {
-            setIsProcessing(false);
-        }
-    };
 
     const calculateTotalPrice = () => {
         return files.reduce((sum, f) => sum + (f.price || 0), 0);
@@ -394,7 +358,7 @@ export function NormalPrint({ initialSpecs, title }) {
                             ref={fileInputRef}
                             onChange={handleFileUpload}
                             multiple
-                            accept=".pdf,.doc,.docx,.pptx,.jpg,.jpeg,.png"
+                            accept=".pdf,.doc,.docx,.docm,.dotx,.pptx,.potx,.jpg,.jpeg,.png"
                             style={{ display: 'none' }}
                         />
                         <div className="upload-icon-wrapper">
@@ -414,7 +378,7 @@ export function NormalPrint({ initialSpecs, title }) {
                                     <FileText className="file-icon" size={24} />
                                     <div>
                                         <span className="file-name">{fileObj.name}</span>
-                                        <span className="page-count"> ({fileObj.pages} pages)</span>
+                                        <span className="page-count"> ({fileObj.pages} {fileObj.pages === 1 ? 'page' : 'pages'})</span>
                                     </div>
                                 </div>
                                 <button className="remove-file" onClick={() => removeFile(fileObj.id)}>
@@ -429,7 +393,7 @@ export function NormalPrint({ initialSpecs, title }) {
                                         type="text"
                                         value={fileObj.settings.pageRange}
                                         onChange={(e) => updateFileSettings(fileObj.id, { pageRange: e.target.value })}
-                                        placeholder="e.g., 1-14"
+                                        placeholder={`e.g., 1-${fileObj.pages}`}
                                     />
                                 </div>
                                 <div className="setting-field">
@@ -543,8 +507,9 @@ export function NormalPrint({ initialSpecs, title }) {
                             <h4>File Guidelines</h4>
                             <ul className="help-list">
                                 <li>Maximum file size: 100MB</li>
-                                <li>Supported formats: PDF, DOC, DOCX, PPT, PPTX, JPG, PNG</li>
-                                <li>PDF files ensure best print quality</li>
+                                <li>Supported formats: PDF, DOC, DOCX, DOCM, PPTX, JPG, PNG</li>
+                                <li>PDF and DOCX ensure the most accurate page detection</li>
+                                <li>Old Word format (.doc) defaults to 1 page; please check page range</li>
                                 <li>Multiple files can be uploaded at once</li>
                             </ul>
                         </div>
