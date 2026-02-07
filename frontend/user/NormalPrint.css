@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #e8f4fc 0%, #f0f4f8 100%);
   color: #1e293b;
-  padding: 8rem 1rem;
+  padding: 6rem 1rem 4rem;
 }
 
 .container {
@@ -112,16 +112,27 @@
 .file-item-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #f1f5f9;
+  gap: 1rem;
 }
 
 .file-name-wrapper {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name-wrapper>div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
 }
 
 .file-icon {
@@ -132,6 +143,9 @@
   font-weight: 600;
   font-size: 1rem;
   color: #1e293b;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .page-count {
@@ -148,6 +162,7 @@
   padding: 0.5rem;
   border-radius: 0.375rem;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .remove-file:hover {
@@ -376,25 +391,51 @@
 }
 
 @media (max-width: 768px) {
+  .normal-print-wrapper {
+    padding: 5rem 0.75rem 3rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
   .upload-card {
-    padding: 1.25rem;
+    padding: 1.25rem 1rem;
+    border-radius: 0.75rem;
+  }
+
+  .upload-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .dropzone {
+    padding: 1.5rem 1rem;
+  }
+
+  .file-item {
+    padding: 1rem;
+    margin-top: 1rem;
   }
 
   .settings-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
   }
 
   .upload-footer {
     flex-direction: column;
     align-items: stretch;
     gap: 1.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
   }
 
   .footer-stats {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding-bottom: 0.5rem;
+    justify-content: space-around;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
     border-bottom: 1px solid #f1f5f9;
   }
 
@@ -402,23 +443,45 @@
     align-items: center;
   }
 
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
   .footer-actions {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.75rem;
   }
 
   .proceed-btn,
   .add-to-cart-btn {
     width: 100%;
-    max-width: 300px;
+    max-width: none;
     justify-content: center;
+    padding: 0.875rem;
+  }
+
+  .help-section {
+    gap: 1rem;
+  }
+
+  .help-card {
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
+  .normal-print-wrapper {
+    padding: 4rem 0.5rem 2rem;
+  }
+
   .settings-grid {
     grid-template-columns: 1fr;
+  }
+
+  .footer-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
   }
 }
