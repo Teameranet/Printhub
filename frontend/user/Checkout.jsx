@@ -70,6 +70,28 @@ export const Checkout = () => {
     };
 
     const handlePayment = async () => {
+        // Validation
+        if (!formData.fullName.trim()) {
+            alert('Please enter your full name');
+            return;
+        }
+
+        if (!formData.mobile.trim() || formData.mobile.length < 10) {
+            alert('Please enter a valid 10-digit mobile number');
+            return;
+        }
+
+        if (deliveryType === 'delivery') {
+            if (!formData.address.trim()) {
+                alert('Please enter your delivery address');
+                return;
+            }
+            if (!formData.pincode.trim() || formData.pincode.length !== 6) {
+                alert('Please enter a valid 6-digit pincode');
+                return;
+            }
+        }
+
         setLoading(true);
         // Simulate payment process
         setTimeout(() => {
