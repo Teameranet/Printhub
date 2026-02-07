@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../../src/context/AuthContext';
 import { useCart } from '../../src/context/CartContext';
 import {
@@ -116,20 +116,16 @@ export const Checkout = () => {
     };
 
     if (cartItems.length === 0) {
+        const hasItemsInContext = contextCartItems?.length > 0;
+        const hasItemsInState = location.state?.files?.length > 0;
+
+        if (!hasItemsInContext && !hasItemsInState) {
+            return <Navigate to="/cart" replace />;
+        }
+
         return (
-            <div className="checkout-empty">
-                <div className="container">
-                    <div className="empty-card">
-                        <div className="empty-icon-wrapper">
-                            <ShoppingCart size={48} className="empty-icon" />
-                        </div>
-                        <h2>Your cart is empty</h2>
-                        <p>Add some files to print before checking out.</p>
-                        <button className="btn btn-primary" onClick={() => navigate('/normal-print')}>
-                            Go to Printing
-                        </button>
-                    </div>
-                </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <Loader2 className="animate-spin" size={48} color="#3b82f6" />
             </div>
         );
     }

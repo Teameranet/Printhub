@@ -11,6 +11,7 @@ import Orders from '../frontend/user/Orders.jsx';
 import AuthModal from '../frontend/user/AuthModal.jsx';
 import Admin from '../frontend/admin/Admin.jsx';
 import { Checkout } from '../frontend/user/Checkout.jsx';
+import Cart from '../frontend/user/Cart.jsx';
 import './App.css';
 // Import component styles
 import '../frontend/components/Header.css';
@@ -20,6 +21,7 @@ import '../frontend/user/AdvancedPrint.css';
 import '../frontend/user/Profile.css';
 import '../frontend/user/AuthModal.css';
 import '../frontend/user/Checkout.css';
+import '../frontend/user/Cart.css';
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -45,6 +47,9 @@ const AppContent = () => {
         break;
       case 'orders':
         navigate('/orders');
+        break;
+      case 'cart':
+        navigate('/cart');
         break;
       case 'checkout':
         navigate('/checkout');
@@ -126,6 +131,7 @@ const AppContent = () => {
           <Route path="/advanced-print" element={<AdvancedPrint onNavigate={handleNavigate} onOpenAuth={openAuthModal} />} />
           <Route path="/profile" element={<Profile onNavigate={handleNavigate} />} />
           <Route path="/orders" element={<Orders onNavigate={handleNavigate} />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

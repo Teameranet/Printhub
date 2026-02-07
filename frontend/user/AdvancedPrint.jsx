@@ -11,7 +11,8 @@ import {
     Plus,
     Sparkles,
     ArrowRight,
-    X
+    X,
+    Search
 } from 'lucide-react';
 import { useAuth } from '../../src/context/AuthContext';
 import './AdvancedPrint.css';

@@ -509,10 +509,10 @@ export function NormalPrint({ initialSpecs, title }) {
                                             addToCart(files);
                                             setFiles([]);
                                             setStep(1);
-                                            alert('Items added to cart!');
+                                            navigate('/cart');
                                         }}
                                     >
-                                        Add into Cart
+                                        Add to Cart
                                     </button>
                                 )}
                                 <button

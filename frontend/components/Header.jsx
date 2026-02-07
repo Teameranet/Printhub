@@ -61,7 +61,7 @@ const Header = ({ onOpenAuth, onNavigate, currentPage }) => {
                         <div className="header-logged-in">
                             <button
                                 className="cart-trigger"
-                                onClick={() => handleNavClick('checkout')}
+                                onClick={() => handleNavClick('cart')}
                             >
                                 <ShoppingCart size={22} />
                                 {cartItems?.length > 0 && <span className="cart-badge">{cartItems.length}</span>}
@@ -87,35 +87,39 @@ const Header = ({ onOpenAuth, onNavigate, currentPage }) => {
                                                 <span className="profile-email">{user?.email}</span>
                                             </div>
                                         </div>
-                                        <div className="profile-dropdown-divider"></div>
-                                        <button
-                                            className="profile-dropdown-item"
-                                            onClick={() => {
-                                                handleNavClick('profile');
-                                                setShowProfileDropdown(false);
-                                            }}
-                                        >
-                                            <User size={18} className="item-icon" />
-                                            My Profile
-                                        </button>
-                                        <button
-                                            className="profile-dropdown-item"
-                                            onClick={() => {
-                                                handleNavClick('orders');
-                                                setShowProfileDropdown(false);
-                                            }}
-                                        >
-                                            <Package size={18} className="item-icon" />
-                                            My Orders
-                                        </button>
-                                        <div className="profile-dropdown-divider"></div>
-                                        <button
-                                            className="profile-dropdown-item logout-item"
-                                            onClick={handleLogout}
-                                        >
-                                            <LogOut size={18} className="item-icon" />
-                                            Logout
-                                        </button>
+
+                                        <div className="profile-dropdown-list">
+                                            <button
+                                                className="profile-dropdown-item"
+                                                onClick={() => {
+                                                    handleNavClick('profile');
+                                                    setShowProfileDropdown(false);
+                                                }}
+                                            >
+                                                <User size={18} className="dropdown-item-icon" />
+                                                My Profile
+                                            </button>
+                                            <button
+                                                className="profile-dropdown-item"
+                                                onClick={() => {
+                                                    handleNavClick('orders');
+                                                    setShowProfileDropdown(false);
+                                                }}
+                                            >
+                                                <Package size={18} className="dropdown-item-icon" />
+                                                My Orders
+                                            </button>
+
+                                            <div className="profile-dropdown-divider"></div>
+
+                                            <button
+                                                className="profile-dropdown-item logout-item"
+                                                onClick={handleLogout}
+                                            >
+                                                <LogOut size={18} className="dropdown-item-icon" />
+                                                Logout
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
