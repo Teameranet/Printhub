@@ -156,12 +156,12 @@
     border-radius: var(--radius-full);
 }
 
-.type-tag-saas.normal-print {
+.type-tag-saas.tag-normal-print {
     background: rgba(33, 150, 243, 0.1);
     color: var(--color-primary-blue);
 }
 
-.type-tag-saas.advanced-print {
+.type-tag-saas.tag-advanced-print {
     background: rgba(156, 39, 176, 0.1);
     color: var(--color-primary-purple);
 }

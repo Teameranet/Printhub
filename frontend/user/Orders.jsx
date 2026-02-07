@@ -292,7 +292,7 @@ const Orders = ({ onNavigate }) => {
                                     <div key={order.id} className="order-card-saas animate-slideUp">
                                         <div className="card-top-saas">
                                             <div className="order-id-meta">
-                                                <span className={`type-tag-saas ${(order.type || 'Normal Print').replace(' ', '-').toLowerCase()}`}>
+                                                <span className={`type-tag-saas ${(order.type ? 'tag-' + order.type.replace(' ', '-').toLowerCase() : 'tag-normal-print')}`}>
                                                     {order.type === 'Advanced Print' ? <Sparkles size={12} /> : <Printer size={12} />}
                                                     {order.type || 'Normal Print'}
                                                 </span>
