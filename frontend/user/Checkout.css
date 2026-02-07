@@ -279,7 +279,9 @@
 .item-file-info {
     display: flex;
     gap: var(--space-5);
-    align-items: center;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 0;
 }
 
 .item-icon-circle {
@@ -296,6 +298,9 @@
 .item-title-wrapper {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
 }
 
 .item-title-wrapper h3 {
@@ -304,12 +309,11 @@
     color: var(--color-gray-900);
     margin: 0;
     letter-spacing: -0.02em;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.2;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+    width: 100%;
 }
 
 .item-page-count {
@@ -322,6 +326,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-8);
+    flex-shrink: 0;
+    margin-left: var(--space-4);
 }
 
 .btn-preview-icon {
