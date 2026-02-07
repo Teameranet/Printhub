@@ -26,7 +26,6 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
     password: '',
     phone: '',
     profileType: 'Regular',
-    otp: '',
     newPassword: ''
   });
   const [error, setError] = useState('');
@@ -44,7 +43,6 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
         password: '',
         phone: '',
         profileType: 'Regular',
-        otp: '',
         newPassword: ''
       });
     }
@@ -59,59 +57,40 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
   }, [timer]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    // Restrict phone and otp to numbers only
+    if (name === 'phone' || name === 'otp') {
+      value = value.replace(/\D/g, '');
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
     setError('');
   };
 
-  const handleDemoLogin = async () => {
-    setError('');
-    setIsLoading(true);
-    try {
-      const demoEmail = 'demo.user@printhub.local';
-      const demoPassword = 'password123';
-
-      try {
-        // First try to register (handles first-time demo access)
-        await register({
-          name: 'Demo User',
-          email: demoEmail,
-          password: demoPassword,
-          phone: '9876543210',
-          profileType: 'Regular'
-        });
-      } catch (regErr) {
-        // If registration fails (usually user already exists), perform login
-        await login(demoEmail, demoPassword);
-      }
-
-      onClose();
-    } catch (err) {
-      console.error('Demo Login Error:', err);
-      setError(err.message || 'Demo access failed. Please try manual sign in.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (formData.phone.length !== 10) {
+      setError('Mobile number must be exactly 10 digits');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      const authData = {
+        name: formData.name,
+        email: `${formData.phone}@printhub.local`,
+        password: formData.password,
+        phone: formData.phone,
+        profileType: formData.profileType
+      };
+
       if (authMode === 'signup') {
-        // Registering with name, derived email (or name as identifier), password, and phone
-        await register({
-          name: formData.name,
-          email: `${formData.phone || formData.name.replace(/\s/g, '.')}@printhub.local`,
-          password: formData.password,
-          phone: formData.phone,
-          profileType: formData.profileType
-        });
+        await register(authData);
       } else {
-        // Login with name and password
-        await login(`${formData.name.replace(/\s/g, '.')}@printhub.local`, formData.password);
+        await login(authData.email, formData.password);
       }
       onClose();
     } catch (err) {
@@ -128,13 +107,10 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
 
     try {
       if (forgotStep === 'initial') {
-        if (!formData.phone) throw new Error('Mobile number is required');
+        if (!formData.phone || formData.phone.length !== 10) {
+          throw new Error('Please enter a valid 10-digit mobile number');
+        }
         await new Promise(r => setTimeout(r, 1000));
-        setForgotStep('otp');
-        setTimer(60);
-      } else if (forgotStep === 'otp') {
-        if (formData.otp.length !== 4) throw new Error('Enter valid 4-digit OTP');
-        await new Promise(r => setTimeout(r, 800));
         setForgotStep('reset');
       } else if (forgotStep === 'reset') {
         if (formData.newPassword.length < 6) throw new Error('Password must be at least 6 characters');
@@ -193,30 +169,9 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
+                      inputMode="numeric"
+                      maxLength="10"
                     />
-                  </div>
-                </div>
-              )}
-
-              {forgotStep === 'otp' && (
-                <div className="input-group-saas animate-fadeIn">
-                  <div className="otp-context">OTP sent to {formData.phone}</div>
-                  <label>Verification Code</label>
-                  <div className="input-wrapper-saas">
-                    <ShieldCheck size={18} className="input-icon-saas" />
-                    <input
-                      type="text"
-                      name="otp"
-                      placeholder="4-digit OTP"
-                      maxLength="4"
-                      className="otp-input"
-                      value={formData.otp}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="resend-timer">
-                    {timer > 0 ? `Resend code in ${timer}s` : <button type="button" onClick={() => setTimer(60)}>Resend now</button>}
                   </div>
                 </div>
               )}
@@ -253,8 +208,7 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
                 <div className="form-actions-saas">
                   <button type="submit" className="btn-primary-saas w-full" disabled={isLoading}>
                     {isLoading ? <span className="loader-saas"></span> :
-                      forgotStep === 'initial' ? 'Send OTP' :
-                        forgotStep === 'otp' ? 'Verify' : 'Update Password'}
+                      forgotStep === 'initial' ? 'Reset Password' : 'Update Password'}
                   </button>
                   <button type="button" className="btn-ghost-saas w-full mt-2" onClick={() => setAuthMode('login')}>
                     <ArrowLeft size={16} /> Back to login
@@ -265,22 +219,41 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
           ) : (
             <form onSubmit={handleSubmit} className="auth-form">
               <div className="input-group-saas">
-                <label>Full Name</label>
+                <label>Mobile Number</label>
                 <div className="input-wrapper-saas">
-                  <User size={18} className="input-icon-saas" />
+                  <Smartphone size={18} className="input-icon-saas" />
                   <input
-                    type="text"
-                    name="name"
-                    placeholder="Enter your full name"
-                    value={formData.name}
+                    type="tel"
+                    name="phone"
+                    placeholder="Enter registered mobile"
+                    value={formData.phone}
                     onChange={handleInputChange}
                     required
+                    maxLength="10"
+                    inputMode="numeric"
                   />
                 </div>
               </div>
 
+
+
               {authMode === 'signup' && (
                 <>
+                  <div className="input-group-saas">
+                    <label>Full Name</label>
+                    <div className="input-wrapper-saas">
+                      <User size={18} className="input-icon-saas" />
+                      <input
+                        type="text"
+                        name="name"
+                        placeholder="Enter your full name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <div className="input-group-saas">
                     <label>Profile Type</label>
                     <div className="input-wrapper-saas">
@@ -295,21 +268,6 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
                         <option value="Student">Student</option>
                         <option value="Institute">Institute</option>
                       </select>
-                    </div>
-                  </div>
-
-                  <div className="input-group-saas">
-                    <label>Mobile Number</label>
-                    <div className="input-wrapper-saas">
-                      <Phone size={18} className="input-icon-saas" />
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="e.g. 9876543210"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required
-                      />
                     </div>
                   </div>
                 </>
@@ -340,23 +298,9 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
                 </div>
               </div>
 
-
-
-              {authMode === 'login' && (
-                <button
-                  type="button"
-                  className="btn-demo-saas w-full mb-3"
-                  onClick={handleDemoLogin}
-                  disabled={isLoading}
-                >
-                  <ShieldCheck size={18} className="mr-2" />
-                  Try Demo Account
-                </button>
-              )}
-
               <button type="submit" className="btn-primary-saas w-full" disabled={isLoading}>
                 {isLoading ? <span className="loader-saas"></span> :
-                  authMode === 'login' ? 'Sign In' : 'Get Started'}
+                  authMode === 'login' ? 'Sign In' : 'Create Account'}
               </button>
 
               <div className="auth-footer-saas">

@@ -29,8 +29,8 @@ export const Checkout = () => {
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
-        fullName: user?.user_metadata?.full_name || '',
-        mobile: user?.user_metadata?.phone || '',
+        fullName: user?.name || user?.user_metadata?.full_name || user?.full_name || '',
+        mobile: user?.phone || user?.user_metadata?.phone || user?.mobile || '',
         address: '',
         pincode: '',
         alternateMobile: '',
@@ -42,14 +42,25 @@ export const Checkout = () => {
         if (isAuthenticated && user) {
             setFormData(prev => ({
                 ...prev,
-                fullName: user.user_metadata?.full_name || user.email?.split('@')[0] || '',
-                mobile: user.user_metadata?.phone || ''
+                fullName: user.name || user.user_metadata?.full_name || user.full_name || user.email?.split('@')[0] || '',
+                mobile: user.phone || user.user_metadata?.phone || user.mobile || ''
             }));
         }
     }, [isAuthenticated, user]);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+
+        // Restrict Full Name to characters and spaces only
+        if (name === 'fullName') {
+            value = value.replace(/[^a-zA-Z\s]/g, '');
+        }
+
+        // Restrict Mobile, Alternate Mobile and Pincode to numbers only
+        if (name === 'mobile' || name === 'alternateMobile' || name === 'pincode') {
+            value = value.replace(/\D/g, '');
+        }
+
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
@@ -72,8 +83,13 @@ export const Checkout = () => {
             return;
         }
 
-        if (!formData.mobile.trim() || formData.mobile.length < 10) {
-            alert('Please enter a valid 10-digit mobile number');
+        if (formData.mobile.length !== 10) {
+            alert('Mobile number must be exactly 10 digits');
+            return;
+        }
+
+        if (formData.alternateMobile && formData.alternateMobile.length !== 10) {
+            alert('Alternate mobile number must be exactly 10 digits');
             return;
         }
 
@@ -91,10 +107,30 @@ export const Checkout = () => {
         setLoading(true);
         // Simulate payment process
         setTimeout(() => {
+            const newOrder = {
+                id: `ORD-${Date.now().toString().slice(-6)}`,
+                date: new Date().toISOString().split('T')[0],
+                status: 'processing',
+                items: cartItems.map(item => item.name || item.fileName).join(', '),
+                total: `₹${calculateTotal()}`,
+                type: cartItems.some(item => item.type === 'advanced' || item.isAdvanced) ? 'Advanced Print' : 'Normal Print',
+                details: cartItems.map(item => ({
+                    name: item.name || item.fileName,
+                    pages: item.pages || 1,
+                    price: item.price,
+                    settings: item.settings || {}
+                })),
+                userPhone: user?.phone || user?.user_metadata?.phone || ''
+            };
+
+            // Save to local storage for real-time fetch in Orders.jsx
+            const existingOrders = JSON.parse(localStorage.getItem('local_orders') || '[]');
+            localStorage.setItem('local_orders', JSON.stringify([newOrder, ...existingOrders]));
+
             setLoading(false);
             alert('Payment Successful! Your order has been placed.');
             clearCart();
-            navigate('/');
+            navigate('/orders'); // Navigate to orders page to see the new order
         }, 2000);
     };
 
@@ -170,6 +206,8 @@ export const Checkout = () => {
                                             value={formData.mobile}
                                             onChange={handleInputChange}
                                             disabled={isAuthenticated}
+                                            maxLength="10"
+                                            inputMode="numeric"
                                         />
                                     </div>
                                 </div>
@@ -218,7 +256,8 @@ export const Checkout = () => {
                                                 <span className="store-name">PrintHub Central Store</span>
                                                 <span className="store-status">Open Now</span>
                                             </div>
-                                            <p className="store-address">123 Printing Street, Tech Hub, Mumbai - 400001</p>
+                                            <p className="store-address"> Dehu Phata, Alandi - Moshi Rd, opp. Anand Hospital, Alandi, Devachi, Maharashtra 412105
+                                            </p>
                                             <div className="store-meta">
                                                 <span className="meta-item"><Clock size={16} /> 9:00 AM - 9:00 PM</span>
                                                 <span className="meta-item"><Zap size={16} /> Est. Ready: 2-4 Hours</span>
@@ -277,6 +316,8 @@ export const Checkout = () => {
                                                     placeholder="6-digit Pincode"
                                                     value={formData.pincode}
                                                     onChange={handleInputChange}
+                                                    maxLength="6"
+                                                    inputMode="numeric"
                                                 />
                                             </div>
                                             <div className="input-group">
@@ -288,6 +329,8 @@ export const Checkout = () => {
                                                     placeholder="Secondary contact number"
                                                     value={formData.alternateMobile}
                                                     onChange={handleInputChange}
+                                                    maxLength="10"
+                                                    inputMode="numeric"
                                                 />
                                             </div>
                                         </div>

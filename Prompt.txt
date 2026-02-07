@@ -141,3 +141,8 @@ Cart Checkout: Cart items only appear in checkout when the user navigates from t
 Prevention of Auto-merging: Removed the code that was automatically merging global cart items into every checkout session.
 Smart Redirection: Updated the redirection logic so that if a user tries to access /checkout directly (without any documents selected), they are automatically redirected to the /cart page to review their items first.
 This ensures that the checkout page only shows
+
+
+- Remove the Demo User complite
+- User should able to Sign Up/In without Runing the Server
+- take Random otp until I add Back end for otp 
