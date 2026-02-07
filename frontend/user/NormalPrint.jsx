@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../src/supabase.js';
 import { useCart } from '../../src/context/CartContext.jsx';
+import { useAuth } from '../../src/context/AuthContext.jsx';
 import { PDFDocument } from 'pdf-lib';
 import JSZip from 'jszip';
 import './NormalPrint.css';
@@ -46,10 +47,10 @@ export function NormalPrint({ initialSpecs, title }) {
     const [files, setFiles] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [config, setConfig] = useState(DEFAULT_CONFIG);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
     const { addToCart } = useCart();
+    const { isAuthenticated } = useAuth();
 
     const fileInputRef = useRef(null);
 
@@ -91,13 +92,7 @@ export function NormalPrint({ initialSpecs, title }) {
 
     useEffect(() => {
         fetchConfig();
-        checkLogin();
     }, []);
-
-    const checkLogin = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setIsLoggedIn(!!user);
-    };
 
     const fetchConfig = async () => {
         try {
@@ -507,7 +502,7 @@ export function NormalPrint({ initialSpecs, title }) {
                                 </div>
                             </div>
                             <div className="footer-actions">
-                                {isLoggedIn && (
+                                {isAuthenticated && (
                                     <button
                                         className="add-to-cart-btn"
                                         onClick={() => {
