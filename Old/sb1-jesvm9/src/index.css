@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply text-gray-900 antialiased;
+  }
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  @apply text-white !important;
+}
+
+.swiper-pagination-bullet {
+  @apply bg-white !important;
+}
+
+.swiper-pagination-bullet-active {
+  @apply bg-white !important;
+}

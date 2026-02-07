@@ -1,0 +1,131 @@
+Set Up React JSX according to this file structure
+
+│
+
+├── 📁 backend/
+
+│   ├── 📁 api/
+
+│   │   ├── 📁 controllers/
+
+│   │   │   
+
+│   │   ├── 📁 routes/
+
+│   │   │   
+
+│   │   └── 📁 services/
+
+│   │      
+
+│   └── server.js
+
+│
+
+├── 📁 frontend/
+
+│   ├── 📁 user/
+
+│   │   ├── AuthModal.jsx & AuthModal.css
+
+│   ├── 📁 admin/
+
+│   │
+
+│   ├── 📁 styles/
+
+│   │   └── App.css
+
+│   └── App.jsx
+
+│
+
+├── 📁 src/
+
+│   ├── 📁 assets/
+
+│   └── main.jsx
+
+│
+
+├── 📁 public/
+
+│   └── vite.svg
+
+│
+
+├── 📁 dist/ (build output)
+
+├── 📁 node_modules/ (dependencies)
+
+│
+
+├── 📄 Configuration Files:
+
+│   ├── .gitattributes
+
+│   ├── index.html
+
+│   ├── package.json
+
+│   ├── package-lock.json
+
+│   ├── vite.config.js
+
+│   └── vercel.json
+
+│
+Getting Started:
+1. Install dependencies: npm install
+2. Start development server: npm run dev
+3. Start backend server: npm run server
+4. Or run both: npm run dev:full
+
+The project is structured for scalability with separate frontend/backend directories and comprehensive documentation for database integration options.
+
+Choose your preferred database solution and follow the respective setup guide:
+- SUPABASE_SETUP.md for Supabase
+
+Happy coding!
+--------------------------------------------------------------------------
+Build the Web-application for Newprinthub [use Printhub_logo.png] web application
+
+PrintHub Home: The central hub featuring a multi lanhuage on search bar show what you want to print with language (English, Hindi, Marathi) and quick-access cards for Normal and Advanced print services.
+
+Sign Up/In: A clean, minimalist login interface featuring secure entry fields, a password reset option, and forgot password for a in model .
+
+Normal Print: while document upload page with a live preview with Functionlinty for customize specifications like { paper size, paper type , page per sheet , Liminaction , Type Of biniding , print on both side or single side and color settings}.
+
+Advanced Section: A dedicated menu for specialized printing, displaying options like Letterhead, Jumbo, A3, and Poster prints in an organized grid layout admin User can add the service as per it choise .
+
+My Profile: A centralized management screen for personal information, saved payment methods, and communication preferences.
+
+Admin page : Admin User can able to manage  
+- Add or edit paper size , paper type 
+- Able to manage Type of Binding & Binding cost as per page range
+- able to add Cost as per paper size, paper type ,Liminaction , Type Of biniding, page per sheet print on both side or single side and color settings
+- admin user can  view & print the document that user has uplode as per there specifications 
+
+Price Calculator: A real-time estimation tool that provides transparent cost breakdowns for print jobs, including active discounts and promotions.
+
+Order History: A detailed list of past and current print jobs, allowing users to track progress, view payment details, or quickly reorder previous documents & advance search & filter functionality.
+
+
+
+I have implemented the Page Per Set logic and updated the pricing calculation to accurately reflect the cost savings when printing multiple pages on a single sheet.
+
+Key Changes:
+NormalPrint.jsx
+Implemented Local Calculation Logic: Added a specialized 
+calculateLocal
+ function within 
+calculatePrice
+ that:
+Calculates the number of effective sides by dividing total document pages by the selected pagesPerSet (using Math.ceil).
+Applies the appropriate base rate ($₹2$ for B&W, $₹10$ for Color).
+Includes a 20% discount for double-sided printing to reflect standard printing costs.
+Multiplies the result by the number of copies.
+Robust Error Handling: Updated the API fallback and error catch blocks to use this new logic, ensuring the price is always calculated correctly even if the backend is unavailable.
+Support for New PPS Options: The calculation automatically supports the new 9 and 16 pages per set options you added to the configuration.
+
+

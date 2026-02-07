@@ -1,0 +1,47 @@
+
+**Prompt:** 30/12/24
+
+Design an Admin Dashboard with the following features:
+
+1. **User Signup Management:**
+   - Display the total number of users who have signed up on both the website and mobile application.
+   - Include functionality to export and download user signup data as an Excel file.
+
+2. **Order Management:**
+   - Provide access to download the order files submitted by users.
+   - Implement options to mark orders as "Orders Processed."
+   - Include a feature to reject orders, allowing for status updates.
+
+3. **Product Pricing Management:**
+   - Facilitate the ability to change the pricing of each product based on the admin's charge.
+
+**Additional Requirement:**
+- On "Sign Up & Sign In" pop add  the "Login as Admin" downwords of "Forgot Password?
+Don't have an account? Sign Up" Link I can able to access "Admin Dashboard"  the files after Click on "Login as Admin"
+ - Give me the search option " User Signup Management , Order Management ,Product Pricing :
+
+**Output Format:**
+- List all features clearly with actionable items.
+- give the option  "Login as Admin"  on Clicking "Login/Signup" pop 
+--------------------------------------------------------------------------------------------
+1.Remove all access files and Router access files of Admin Dashboard  
+2.On "Sign Up & Sign In" pop add  the "Login as Admin" I can able to access "Admin Dashboard"  the files after Click on "Login as Admin"
+
+-----------------------------------------------------------------------------
+give the option  "Login as Admin"  on Clicking "Login/Signup" pop 
+----------------------------------------------------------------------
+Password
+Enter your password
+Sign In
+Forgot Password?
+Don't have an account? Sign Up
+---------------------------------------------------------------------------
+Redesign "Login/Signup" Pop as per "Forgot Password?"
+"Don't have an account? Sign Up"
+"Login as Admin" (new option) " New Editable  When you click "Login as Admin", it will switch to the admin login form.
+-----------------------------------------------------------------------------
+The objective is to enhance user experience by making specific changes to the login and sign-up processes, as well as the footer section of the application.1.**Remove Access:** - Eliminate any links or references to the "Admin Dashboard" page from the "Login/Sign Up" pop-up.Ensure that users cannot access this page directly from these entry points.2.**Update Footer Section:** - In the "Footer" section of the application, locate the "Support" column.- Add a new link titled "View as Admin" within this column.- This link should redirect users to the "Admin Dashboard" page when clicked.3.**Ensure Functionality:** - Verify that the "View as Admin" link correctly directs users to the "Admin Dashboard" page.- Confirm that the removal of the "Admin Dashboard" access from the "Login/Sign Up" pop-up is successfully implemented and functioning as intended.4.**Testing Requirements:** - Conduct thorough testing to ensure that no traces of the "Admin Dashboard" link remain in the "Login/Sign Up" pop-up.- Test the "View as Admin" functionality to ensure it provides appropriate access to the "Admin Dashboard" page for authorized users only
+--------------------------------------------------------------------------------------
+Add Search Option to Admin Dashboard page " User Management" "Order Management" where I can search Customer Order ID ,  Customer Name . Deploy It.
+--------------------------------------------------------------------------
+Redesign the layout of "What Our Clients Say" section  it should be Responsible on Mobile Tablat and Mornater

@@ -1,0 +1,24 @@
+Let me create this missing file and also check for any other potential issues to fix all bugs.
+
+1. After a user signs up or logs  display user name right side of the icon (example "Ashwin") and I want a "Logout" option or further customization
+
+2. If I move the mouse coursor on "User Name"  give the hover effect options dropdown "Profile " and "Log out " with icon
+
+3. Create a User Profile Page
+
+
+4. If user click on "Profile" view user profile details & If user click on "Logout" go to home   page and show tost notification "Logout sussufully"
+   [apply effect on mouse coursor on The Profile and Logout options dropdown  hover over effect menu]
+
+5.  Update the "Track Your Order Number" input field white baground layout is 448px wide and 241.6px tall. Dont change the layout size "Tracking order detail"
+
+6. Move search icon in input filed box 
+
+7. Update the layout "Tracking order detail"only as 896px in width and  663.84px in height.
+   Do not  change "Track Your Order Number" input field's white background layout keep exactly 448px wide and 241.6px.
+ 
+   After User Sign Up/In show "2" on and view cart page 
+----------------------------------------------------------------------------------
+
+
+ pexonic.com@gmail.com

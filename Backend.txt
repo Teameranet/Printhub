@@ -1,0 +1,37 @@
+Backend Setup Instructions
+========================
+
+This backend is built with Express.js and is ready for database integration.
+
+Directory Structure:
+- backend/api/controllers/ - Handle business logic
+- backend/api/routes/ - Define API endpoints
+- backend/api/services/ - Database and external service interactions
+- backend/server.js - Main server file
+
+Getting Started:
+1. Install dependencies: npm install
+2. Start the backend server: npm run server
+3. Server will run on http://localhost:5000
+
+API Endpoints:
+- GET / - Health check endpoint
+
+Database Integration:
+- Ready for MongoDB, PostgreSQL, or any database
+- Add your database connection in server.js
+- Create models in services directory
+- Implement CRUD operations in controllers
+
+Environment Variables:
+Create a .env file with:
+- PORT=5000
+- DATABASE_URL=your_database_connection_string
+- JWT_SECRET=your_jwt_secret
+
+Next Steps:
+1. Set up your preferred database
+2. Create authentication middleware
+3. Implement user registration/login
+4. Add protected routes
+5. Connect frontend to backend APIs

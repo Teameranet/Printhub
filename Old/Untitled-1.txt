@@ -1,0 +1,99 @@
+## Shopping Cart
+Show cart icon with "2" items and allow access to cart page after user logs in
+
+
+
+### Search Bar Component
+- Implement a search bar component that allows users to search through available products and displays real-time results
+
+User is seeing a blank screen. Please check your internet connection and refresh the page. If the issue persists, contact support.
+ 
+ if i search for a product and it doesn't show up, what should i do?
+- Try searching for a different product or category.
+- Check if the product is available in the store.
+- If the product is out of stock, you can request to have it restocked.
+- Contact customer support for further assistance.
+
+### Cart Page
+- Add a "Remove" button to each cart item to allow users to easily remove items they no longer need
+- Implement a "Proceed to Checkout" button that leads users to the checkout page
+- Display the total cost of all items in the cart and allow users to update quantities or remove individual items
+
+### Checkout Page
+- Collect user shipping and billing information
+- Provide a list of available payment methods
+- Offer a "Place Order" button to complete the purchase
+
+### Order Confirmation Page
+- Display a confirmation message with the order number and tracking information
+- Provide options for users to track their order or return it
+
+### Order History Page
+- Show users a list of all previous orders, including order number, date, and total cost
+- Allow users to view detailed order information by clicking on an order
+
+### Product Details Page
+- Show users additional product information, such as description, specifications, and customer reviews
+
+### Admin Dashboard Layout Suggestions
+
+#### Navigation & Overview
+- Add sidebar navigation with quick access to:
+  - Orders management
+  - Product catalog
+  - Customer profiles
+  - Analytics dashboard
+  - Settings
+
+#### Orders Section
+- Display orders table with:
+  - Order ID
+  - Customer details
+  - Order status
+  - Payment status
+  - Shipping status
+  - Action buttons (View/Edit/Delete)
+
+#### Product Management
+- Product listing with:
+  - Grid/List view toggle
+  - Bulk actions (Edit/Delete/Update stock)
+  - Quick edit features
+  - Product categories management
+  - Inventory tracking
+  - Price management
+
+#### Product Details View
+- Comprehensive product information:
+  - Basic details (name, SKU, price)
+  - Stock management
+  - Image gallery
+  - Variant management
+  - Related products section
+  - Sales history
+  - Customer reviews moderation
+
+#### Analytics Dashboard
+- Key metrics display:
+  - Sales overview
+  - Popular products
+  - Revenue charts
+  - Customer acquisition
+  - Inventory alerts
+  - Performance reports
+
+#### Customer Management
+- Customer database with:
+  - Profile information
+  - Purchase history
+  - Communication logs
+  - Support tickets
+  - Loyalty program status
+
+#### Settings & Configuration
+- System preferences
+- Payment gateway setup
+- Shipping methods 
+- Tax configuration
+- User roles & permissions
+- Store customization options
