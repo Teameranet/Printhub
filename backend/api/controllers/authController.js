@@ -51,9 +51,10 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email?.toLowerCase();
 
     // Check for demo user credentials
-    if (email === 'demo.user@printhub.local' && password === 'password123') {
+    if (normalizedEmail === 'demo.user@printhub.local' && password === 'password123') {
       return res.status(200).json({
         success: true,
         message: 'Demo login successful',

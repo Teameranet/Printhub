@@ -26,7 +26,7 @@ const getHeaders = (includeAuth = false) => {
 // Generic API request function
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_URL}${endpoint}`;
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -45,6 +45,9 @@ const apiRequest = async (endpoint, options = {}) => {
     return data;
   } catch (error) {
     console.error('API Error:', error);
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new Error('Could not connect to the server. Please ensure the backend is running on http://localhost:5000');
+    }
     throw error;
   }
 };

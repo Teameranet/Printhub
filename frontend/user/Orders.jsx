@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search, Filter, Calendar, Download, ExternalLink, Package, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../src/context/AuthContext';
-import './Profile.css'; // Reusing profile styles as they fit anyway
+import './Orders.css';
 
 const Orders = ({ onNavigate }) => {
     const { user, isAuthenticated } = useAuth();
