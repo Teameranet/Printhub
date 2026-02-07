@@ -127,10 +127,6 @@ const Cart = () => {
                                 <span>Subtotal ({cartItems.length} items)</span>
                                 <span>₹{calculateTotal().toFixed(2)}</span>
                             </div>
-                            <div className="summary-row">
-                                <span>Estimated Delivery</span>
-                                <span className="free-tag">FREE</span>
-                            </div>
                             <div className="summary-divider"></div>
                             <div className="summary-row total">
                                 <span>Total</span>
