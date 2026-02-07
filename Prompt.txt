@@ -129,3 +129,15 @@ Robust Error Handling: Updated the API fallback and error catch blocks to use th
 Support for New PPS Options: The calculation automatically supports the new 9 and 16 pages per set options you added to the configuration.
 
 
+The logic is now updated to decouple the Cart from the Checkout page.
+
+Key Improvements:
+Isolation of Cart Items: Modified 
+Checkout.jsx
+ to exclusively display documents passed through the navigation state. Even if a user has items in their cart, those items will not appear on the checkout page unless they were explicitly sent there via the "Print Now" button in the Cart.
+Separate Flows:
+Direct Checkout: Clicking "Continue" after an upload only sends the currently uploaded documents to checkout.
+Cart Checkout: Cart items only appear in checkout when the user navigates from the Cart page using the "Print Now" button.
+Prevention of Auto-merging: Removed the code that was automatically merging global cart items into every checkout session.
+Smart Redirection: Updated the redirection logic so that if a user tries to access /checkout directly (without any documents selected), they are automatically redirected to the /cart page to review their items first.
+This ensures that the checkout page only shows

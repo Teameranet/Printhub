@@ -15,19 +15,15 @@ export const Checkout = () => {
     const { user, isAuthenticated } = useAuth();
     const { cartItems: contextCartItems, clearCart } = useCart();
 
-    // Combine cart items with items passed via state (from direct "Continue")
+    // Only show items passed in navigation state
     const [cartItems, setCartItems] = useState([]);
 
     useEffect(() => {
+        // We only use items passed via location state (either from 'Continue' or 'Print Now')
+        // This ensures cart items don't automatically show up unless requested
         const stateItems = location.state?.files || [];
-        // If we have items from state, we prioritize them or combine them
-        const combined = [...stateItems, ...contextCartItems];
-        // Simple de-duplication by id if available
-        const unique = combined.filter((item, index, self) =>
-            index === self.findIndex((t) => (t.id === item.id))
-        );
-        setCartItems(unique);
-    }, [location.state, contextCartItems]);
+        setCartItems(stateItems);
+    }, [location.state]);
 
     const [deliveryType, setDeliveryType] = useState('pickup'); // 'pickup' or 'delivery'
     const [loading, setLoading] = useState(false);
@@ -116,10 +112,10 @@ export const Checkout = () => {
     };
 
     if (cartItems.length === 0) {
-        const hasItemsInContext = contextCartItems?.length > 0;
-        const hasItemsInState = location.state?.files?.length > 0;
+        // If there's no state and no items passed, we shouldn't be here
+        const isActuallyLoading = location.state?.files?.length > 0;
 
-        if (!hasItemsInContext && !hasItemsInState) {
+        if (!isActuallyLoading) {
             return <Navigate to="/cart" replace />;
         }
 

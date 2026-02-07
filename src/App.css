@@ -945,32 +945,45 @@ a:hover {
    Footer
    ======================================== */
 
+/* ========================================
+   Footer - SaaS Premium Design
+   ======================================== */
+
 .footer {
-  background: var(--color-gray-900);
-  color: var(--color-gray-400);
-  padding: var(--space-16) 0 var(--space-8);
+  background: #0f172a;
+  /* Deeper, more modern blue-black */
+  color: #94a3b8;
+  padding: var(--space-20) 0 var(--space-10);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 1.5fr repeat(3, 1fr);
   gap: var(--space-12);
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--space-16);
 }
 
 .footer-brand {
-  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  text-align: center;
 }
 
 .footer-logo {
   height: 48px;
-  margin-bottom: var(--space-4);
-  filter: brightness(0) invert(1);
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .footer-tagline {
-  color: var(--color-gray-400);
-  margin-bottom: var(--space-5);
+  color: #64748b;
+  font-size: var(--font-size-sm);
+  max-width: 240px;
+  margin: 0;
   line-height: 1.6;
 }
 
@@ -980,97 +993,127 @@ a:hover {
 }
 
 .social-link {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
-  font-size: 1.25rem;
-  text-decoration: none;
-  transition: all var(--transition-fast);
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  border-radius: 10px;
+  transition: all var(--transition-base);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .social-link:hover {
-  background: var(--color-primary);
-  transform: translateY(-2px);
+  background: rgba(233, 30, 140, 0.1);
+  color: var(--color-primary);
+  border-color: rgba(233, 30, 140, 0.3);
+  transform: translateY(-3px);
 }
 
 .footer-links h4 {
   color: var(--color-white);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-semibold);
-  margin-bottom: var(--space-5);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-6);
 }
 
 .footer-links ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 .footer-links li {
-  margin-bottom: var(--space-3);
+  margin: 0;
 }
 
 .footer-links a,
 .footer-links button {
-  color: var(--color-gray-400);
+  color: #94a3b8;
   text-decoration: none;
   font-size: var(--font-size-sm);
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
   font-family: inherit;
+  width: fit-content;
 }
 
 .footer-links a:hover,
 .footer-links button:hover {
   color: var(--color-white);
+  padding-left: 4px;
+  /* Subtle hover interaction */
 }
 
 .footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: var(--space-8);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: var(--font-size-sm);
+  padding-top: var(--space-10);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: var(--font-size-xs);
+  color: #64748b;
 }
 
 .footer-bottom p {
   margin: 0;
+  letter-spacing: 0.02em;
 }
 
 .footer-payment {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-6);
 }
 
-.payment-icons {
-  font-size: 1.25rem;
-  letter-spacing: 0.5em;
+.footer-payment span {
+  font-weight: var(--font-medium);
+  color: #475569;
+}
+
+.payment-icons-saas {
+  display: flex;
+  gap: var(--space-4);
+  color: #475569;
+}
+
+.payment-icons-saas svg {
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.payment-icons-saas svg:hover {
+  opacity: 1;
+  color: var(--color-white);
 }
 
 /* Footer Responsive */
 @media (max-width: 1024px) {
   .footer-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-8);
+    gap: var(--space-10);
   }
 
   .footer-brand {
     grid-column: 1 / -1;
-    max-width: none;
+    align-items: center;
+    /* Center on tablets/mobile */
     text-align: center;
+    margin-bottom: var(--space-6);
   }
 
-  .footer-social {
-    justify-content: center;
+  .footer-tagline {
+    max-width: none;
   }
 }
 
@@ -1078,16 +1121,28 @@ a:hover {
   .footer-grid {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: var(--space-12);
   }
 
-  .footer-links h4 {
-    margin-bottom: var(--space-3);
+  .footer-links ul {
+    align-items: center;
+  }
+
+  .footer-links a:hover,
+  .footer-links button:hover {
+    padding-left: 0;
+    transform: scale(1.05);
   }
 
   .footer-bottom {
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-8);
     text-align: center;
+  }
+
+  .footer-payment {
+    flex-direction: column;
+    gap: var(--space-3);
   }
 }
 

@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin,
+  CreditCard,
+  Smartphone,
+  Building2,
+  Wallet
+} from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx'; // Ensure CartProvider is here too if needed, though main.jsx handles it
-import Header from '../frontend/components/Header.jsx';
+import Header from '../frontend/user/Header.jsx';
 import Home from '../frontend/user/Home.jsx';
 import { NormalPrint } from '../frontend/user/NormalPrint.jsx'; // Named import
 import AdvancedPrint from '../frontend/user/AdvancedPrint.jsx';
@@ -14,7 +24,7 @@ import { Checkout } from '../frontend/user/Checkout.jsx';
 import Cart from '../frontend/user/Cart.jsx';
 import './App.css';
 // Import component styles
-import '../frontend/components/Header.css';
+import '../frontend/user/Header.css';
 import '../frontend/user/Home.css';
 import '../frontend/user/NormalPrint.css';
 import '../frontend/user/AdvancedPrint.css';
@@ -142,13 +152,13 @@ const AppContent = () => {
           <div className="footer-grid">
             <div className="footer-brand">
               <img src="/Printhub_logo.png" alt="PrintHub" className="footer-logo" />
-              <p className="footer-tagline">A Better Way To Print</p>
               <div className="footer-social">
-                <a href="#" className="social-link">📘</a>
-                <a href="#" className="social-link">📷</a>
-                <a href="#" className="social-link">🐦</a>
-                <a href="#" className="social-link">💼</a>
+                <a href="#" className="social-link"><Facebook size={18} /></a>
+                <a href="#" className="social-link"><Instagram size={18} /></a>
+                <a href="#" className="social-link"><Twitter size={18} /></a>
+                <a href="#" className="social-link"><Linkedin size={18} /></a>
               </div>
+              <p className="footer-tagline">A Better Way To Print</p>
             </div>
 
             <div className="footer-links">
@@ -186,7 +196,12 @@ const AppContent = () => {
             <p>&copy; {new Date().getFullYear()} PrintHub. All rights reserved.</p>
             <div className="footer-payment">
               <span>Payment Methods:</span>
-              <span className="payment-icons">💳 📱 🏦 💰</span>
+              <div className="payment-icons-saas">
+                <CreditCard size={18} title="Credit Card" />
+                <Smartphone size={18} title="Mobile Pay" />
+                <Building2 size={18} title="Net Banking" />
+                <Wallet size={18} title="Wallet" />
+              </div>
             </div>
           </div>
         </div>

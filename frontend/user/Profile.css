@@ -18,7 +18,8 @@
 .profile-wrapper-saas {
     min-height: 100vh;
     background-color: var(--profile-bg);
-    padding: 2rem 1rem;
+    padding: 120px 1rem 80px;
+    /* Increased top padding for fixed header */
 }
 
 .profile-container-saas {
