@@ -112,15 +112,22 @@ export const Checkout = () => {
                 date: new Date().toISOString().split('T')[0],
                 status: 'processing',
                 items: cartItems.map(item => item.name || item.fileName).join(', '),
-                total: `₹${calculateTotal()}`,
+                total: calculateTotal(),
                 type: cartItems.some(item => item.type === 'advanced' || item.isAdvanced) ? 'Advanced Print' : 'Normal Print',
+                files: cartItems.map(item => ({
+                    name: item.name || item.fileName,
+                    pages: item.pages || 1,
+                    price: item.price,
+                    settings: item.settings || {}
+                })),
                 details: cartItems.map(item => ({
                     name: item.name || item.fileName,
                     pages: item.pages || 1,
                     price: item.price,
                     settings: item.settings || {}
                 })),
-                userPhone: user?.phone || user?.user_metadata?.phone || ''
+                userName: formData.fullName || user?.name || user?.user_metadata?.full_name || 'Guest User',
+                userPhone: formData.mobile || user?.phone || user?.user_metadata?.phone || ''
             };
 
             // Save to local storage for real-time fetch in Orders.jsx

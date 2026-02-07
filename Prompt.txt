@@ -100,9 +100,17 @@ Advanced Section: A dedicated menu for specialized printing, displaying options 
 
 My Profile: A centralized management screen for personal information, saved payment methods, and communication preferences.
 
-Admin page : Admin User can able to manage  
-- Add or edit paper size , paper type 
-- Able to manage Type of Binding & Binding cost as per page range
+Design the Admin page as per this system with advance search & filter functionality
+- User Management : User details with real time Update as per AuthModal.jsx
+- Order Management :User can view & print the document that user has uploaded as per there specifications Update status on real-time as per NormalPrint.jsx & AdvancedPrint.jsx details
+- Normal printing price: User able to add or edit Normal printing price as user profile & Page Range wise
+- Binding Management : User able to add or edit Binding Type & Binding price as per user profile & page range
+
+
+
+- Add or edit paper size , paper type for specifications service 
+- Section for Add or edit Service , Service Type & Service price (Comming Soon)
+- Able to Manage Type of Binding & Binding cost as per page range
 - able to add Cost as per paper size, paper type ,Liminaction , Type Of biniding, page per sheet print on both side or single side and color settings
 - admin user can  view & print the document that user has uplode as per there specifications 
 

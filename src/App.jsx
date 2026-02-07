@@ -8,7 +8,8 @@ import {
   CreditCard,
   Smartphone,
   Building2,
-  Wallet
+  Wallet,
+  Shield
 } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx'; // Ensure CartProvider is here too if needed, though main.jsx handles it
@@ -32,6 +33,7 @@ import '../frontend/user/Profile.css';
 import '../frontend/user/AuthModal.css';
 import '../frontend/user/Checkout.css';
 import '../frontend/user/Cart.css';
+import '../frontend/admin/admin.css';
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -113,7 +115,7 @@ const AppContent = () => {
     );
   }
 
-  // Admin logic
+  // Admin logic - if authenticated admin, force to admin page
   if (isAuthenticated && user?.role === 'admin') {
     if (location.pathname !== '/admin') {
       return <Navigate to="/admin" replace />;
@@ -121,9 +123,9 @@ const AppContent = () => {
     return <Admin onLogout={handleLogout} user={user} />;
   }
 
-  // Prevent non-admins from accessing /admin
+  // Allow access to admin page for demo purposes (View as Admin link)
   if (location.pathname === '/admin') {
-    return <Navigate to="/" replace />;
+    return <Admin onLogout={handleLogout} user={user || { name: 'Demo Admin', role: 'admin' }} />;
   }
 
   return (
@@ -194,6 +196,13 @@ const AppContent = () => {
 
           <div className="footer-bottom">
             <p>&copy; {new Date().getFullYear()} PrintHub. All rights reserved.</p>
+            <button
+              className="admin-access-btn"
+              onClick={() => handleNavigate('admin')}
+            >
+              <Shield size={14} />
+              View as Admin
+            </button>
             <div className="footer-payment">
               <span>Payment Methods:</span>
               <div className="payment-icons-saas">

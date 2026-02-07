@@ -12,7 +12,7 @@
     "dev:full": "concurrently \"npm run dev\" \"npm run server\""
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.95.3",
+
     "jszip": "^3.10.1",
     "lucide-react": "^0.563.0",
     "pdf-lib": "^1.17.1",
