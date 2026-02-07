@@ -84,7 +84,7 @@ const Header = ({ onOpenAuth, onNavigate, currentPage }) => {
                                             </div>
                                             <div className="profile-info">
                                                 <span className="profile-name-full">{user?.name}</span>
-                                                <span className="profile-email">{user?.email}</span>
+                                                <span className="profile-email">{user?.profileType || 'Regular'} Member</span>
                                             </div>
                                         </div>
 
