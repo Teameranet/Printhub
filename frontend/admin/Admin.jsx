@@ -3,12 +3,13 @@ import {
     LayoutDashboard, Settings, LogOut,
     ChevronDown, ChevronRight, CheckCircle, XCircle,
     AlertCircle, RefreshCw, TrendingUp,
-    ChevronLeft, Clock, Package, Users, ShoppingBag, Activity, DollarSign
+    ChevronLeft, Clock, Package, Users, ShoppingBag, Activity, DollarSign, Link2
 } from 'lucide-react';
 import UserManagement from './UserManagement';
 import OrderManagement from './OrderManagement';
 import SettingsPage from './Settings';
 import PricingManagement from './PricingManagement';
+import BindingManagement from './BindingManagement';
 import './admin.css';
 
 // Mock data generator for demo
@@ -250,6 +251,7 @@ const Admin = ({ onLogout, user }) => {
             case 'users': return <UserManagement users={users} orders={orders} isLoading={isLoading} />;
             case 'orders': return <OrderManagement orders={orders} isLoading={isLoading} handleUpdateOrderStatus={handleUpdateOrderStatus} />;
             case 'pricing': return <PricingManagement />;
+            case 'binding': return <BindingManagement />;
             case 'settings': return <SettingsPage user={user} />;
             default: return renderDashboard();
         }
@@ -300,6 +302,13 @@ const Admin = ({ onLogout, user }) => {
                     >
                         <DollarSign size={20} />
                         {!sidebarCollapsed && <span>Normal Print Pricing</span>}
+                    </button>
+                    <button
+                        className={`nav-btn ${activeTab === 'binding' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('binding')}
+                    >
+                        <Link2 size={20} />
+                        {!sidebarCollapsed && <span>Binding Management</span>}
                     </button>
                     <button
                         className={`nav-btn ${activeTab === 'settings' ? 'active' : ''}`}

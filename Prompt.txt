@@ -159,3 +159,7 @@ This ensures that the checkout page only shows
 - Remove the Demo User complite
 - User should able to Sign Up/In without Runing the Server
 - take Random otp until I add Back end for otp 
+
+# On admin Page  Add the Functionlity & Logic. fetch the price as per set on admin page as per user type 
+
+- Normal printing price: User able to add or edit Normal printing price as per (user profile type , Colour , Side  & Page Range wise)

@@ -125,7 +125,33 @@ export function NormalPrint({ initialSpecs, title }) {
 
     useEffect(() => {
         fetchConfig();
+
+        // Listen for storage changes to update binding types in real-time
+        const handleStorageChange = () => {
+            loadBindingTypesFromStorage();
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
+
+    const loadBindingTypesFromStorage = () => {
+        try {
+            const savedBindingTypes = localStorage.getItem('binding_types');
+            if (savedBindingTypes) {
+                const bindingTypes = JSON.parse(savedBindingTypes);
+                // Filter only active binding types
+                const activeTypes = bindingTypes.filter(t => t.isActive);
+                if (activeTypes.length > 0) {
+                    setConfig(prev => ({
+                        ...prev,
+                        bindingTypes: activeTypes
+                    }));
+                }
+            }
+        } catch (e) {
+            console.warn('Error loading binding types from storage:', e);
+        }
+    };
 
     const fetchConfig = async () => {
         try {
@@ -142,6 +168,9 @@ export function NormalPrint({ initialSpecs, title }) {
             console.error('Error fetching config:', error);
             // Keep using DEFAULT_CONFIG
         }
+
+        // Load binding types from localStorage (admin configured)
+        loadBindingTypesFromStorage();
     };
 
     const parsePageRange = (range, maxPages) => {
@@ -289,13 +318,43 @@ export function NormalPrint({ initialSpecs, title }) {
 
                 let printPrice = sidesNeeded * pricePerPage;
 
-                // Binding costs
+                // Binding costs - fetch from admin settings
                 let bindingCostPerUnit = 0;
-                switch (obj.settings.bindingTypeId) {
-                    case 'spiral': bindingCostPerUnit = 20; break;
-                    case 'staple': bindingCostPerUnit = 5; break;
-                    case 'hardcover': bindingCostPerUnit = 100; break;
-                    default: bindingCostPerUnit = 0;
+                const bindingTypeId = obj.settings.bindingTypeId;
+
+                if (bindingTypeId && bindingTypeId !== 'none') {
+                    try {
+                        const savedBindingPrices = localStorage.getItem('binding_prices');
+                        if (savedBindingPrices) {
+                            const bindingPrices = JSON.parse(savedBindingPrices);
+
+                            // Find matching binding price rule based on type and page range
+                            const matchingRule = bindingPrices.find(rule =>
+                                rule.bindingTypeId === bindingTypeId &&
+                                activePages >= rule.fromPage &&
+                                activePages <= rule.toPage
+                            );
+
+                            if (matchingRule) {
+                                bindingCostPerUnit = matchingRule[priceKey] || matchingRule.regularPrice || 0;
+                            } else {
+                                // If no exact range match, find any rule for this binding type
+                                const typeRule = bindingPrices.find(rule => rule.bindingTypeId === bindingTypeId);
+                                if (typeRule) {
+                                    bindingCostPerUnit = typeRule[priceKey] || typeRule.regularPrice || 0;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Error loading binding prices:', e);
+                        // Fallback to default hardcoded values
+                        switch (bindingTypeId) {
+                            case 'spiral': bindingCostPerUnit = 20; break;
+                            case 'staple': bindingCostPerUnit = 5; break;
+                            case 'hardcover': bindingCostPerUnit = 100; break;
+                            default: bindingCostPerUnit = 0;
+                        }
+                    }
                 }
 
                 const total = (printPrice + bindingCostPerUnit) * copies;
