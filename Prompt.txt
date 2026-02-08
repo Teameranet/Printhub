@@ -103,10 +103,15 @@ My Profile: A centralized management screen for personal information, saved paym
 Design the Admin page as per this system with advance search & filter functionality
 - User Management : User details with real time Update as per AuthModal.jsx
 - Order Management :User can view & print the document that user has uploaded as per there specifications Update status on real-time as per NormalPrint.jsx & AdvancedPrint.jsx details
-- Normal printing price: User able to add or edit Normal printing price as user profile & Page Range wise
+- Normal printing price: User able to add or edit Normal printing price as per (user profile type , Colour , Side  & Page Range wise)
 - Binding Management : User able to add or edit Binding Type & Binding price as per user profile & page range
 
 
+
+Update the Printing price as per admin user add make as per design system 
+- Normal printing price: User able to add or edit Normal printing price as per (user profile type , Colour , Side  & Page Range wise)
+- Binding Management : User able to add or edit Binding Type & Binding price as per user profile & page range
+- Fletch the Normal printing price & Binding  price as per different type of user as per set on admin panel on real time
 
 - Add or edit paper size , paper type for specifications service 
 - Section for Add or edit Service , Service Type & Service price (Comming Soon)
