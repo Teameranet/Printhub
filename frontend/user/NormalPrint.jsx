@@ -221,28 +221,73 @@ export function NormalPrint({ initialSpecs, title }) {
 
     const calculatePrice = async (fileObj) => {
         try {
-            // Local calculation logic (also acts as fallback)
+            // Load admin-configured pricing rules from localStorage
+            let pricingRules = [];
+            try {
+                const saved = localStorage.getItem('normal_printing_prices');
+                if (saved) {
+                    pricingRules = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.warn('Error loading pricing rules:', e);
+            }
+
+            // Get user profile type - normalize to lowercase
+            const userProfileType = (user?.profileType || user?.user_metadata?.user_type || 'regular').toLowerCase();
+
+            // Determine price key based on user type
+            const getPriceKey = (type) => {
+                if (type === 'student') return 'studentPrice';
+                if (type === 'institute') return 'institutePrice';
+                return 'regularPrice';
+            };
+            const priceKey = getPriceKey(userProfileType);
+
+            // Local calculation logic
             const calculateLocal = (obj) => {
                 const pps = parseInt(obj.settings.pagesPerSet) || 1;
                 const copies = parseInt(obj.settings.copies) || 1;
-                const isColor = obj.settings.printColorId === 'color';
-                const isDoubleSided = obj.settings.printSideId === 'double';
-
-                // Base rates (per side)
-                const baseRate = isColor ? 10 : 2;
+                const colorType = obj.settings.printColorId === 'color' ? 'color' : 'bw';
+                const sideType = obj.settings.printSideId === 'double' ? 'double' : 'single';
 
                 // Number of document pages being printed
                 const activePages = parsePageRange(obj.settings.pageRange, obj.pages);
 
+                // Find matching pricing rule
+                let pricePerPage = colorType === 'color' ? 10 : 2; // Default fallback prices
+
+                // Sort rules by specificity (smaller page ranges first)
+                const sortedRules = [...pricingRules].sort((a, b) => {
+                    const rangeA = a.toPage - a.fromPage;
+                    const rangeB = b.toPage - b.fromPage;
+                    return rangeA - rangeB;
+                });
+
+                // Find the best matching rule
+                for (const rule of sortedRules) {
+                    if (rule.colorType === colorType &&
+                        rule.sideType === sideType &&
+                        activePages >= rule.fromPage &&
+                        activePages <= rule.toPage) {
+                        pricePerPage = rule[priceKey] || rule.regularPrice || pricePerPage;
+                        break;
+                    }
+                }
+
+                // If no exact match found, try to find a rule that matches color and side only
+                if (pricePerPage === (colorType === 'color' ? 10 : 2)) {
+                    for (const rule of sortedRules) {
+                        if (rule.colorType === colorType && rule.sideType === sideType) {
+                            pricePerPage = rule[priceKey] || rule.regularPrice || pricePerPage;
+                            break;
+                        }
+                    }
+                }
+
                 // Effective sides needed after applying pages per set
                 const sidesNeeded = Math.ceil(activePages / pps);
 
-                let printPrice = sidesNeeded * baseRate;
-
-                // Apply double-sided discount
-                if (isDoubleSided) {
-                    printPrice = printPrice * 0.8;
-                }
+                let printPrice = sidesNeeded * pricePerPage;
 
                 // Binding costs
                 let bindingCostPerUnit = 0;
@@ -258,7 +303,7 @@ export function NormalPrint({ initialSpecs, title }) {
                 return {
                     total,
                     bindingCost: bindingCostPerUnit * copies,
-                    singlePageCost: baseRate * (isDoubleSided ? 0.8 : 1)
+                    singlePageCost: pricePerPage
                 };
             };
 
@@ -266,15 +311,13 @@ export function NormalPrint({ initialSpecs, title }) {
 
             // Try to get price from API if available
             try {
-                const userType = user?.user_metadata?.user_type?.toLowerCase() || 'regular';
-
                 const response = await fetch(`${API_URL}/api/calculate-price`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         ...fileObj.settings,
                         pages: parsePageRange(fileObj.settings.pageRange, fileObj.pages),
-                        userType
+                        userType: userProfileType
                     })
                 });
 
