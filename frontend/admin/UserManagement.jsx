@@ -32,7 +32,6 @@ const UserDetailsModal = ({ user, onClose, orders }) => {
                         <div className="user-profile-info">
                             <h3>{user.name}</h3>
                             <p><Phone size={14} /> {user.phone}</p>
-                            <p><Mail size={14} /> {user.email}</p>
                         </div>
                     </div>
 
