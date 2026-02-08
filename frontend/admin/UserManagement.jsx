@@ -229,7 +229,6 @@ const UserManagement = ({ users, orders, isLoading }) => {
                                             <div className="user-avatar-sm">{u.name?.charAt(0)?.toUpperCase() || 'U'}</div>
                                             <div className="user-cell-info">
                                                 <span className="user-name">{u.name}</span>
-                                                <span className="user-email">{u.email}</span>
                                             </div>
                                         </div>
                                     </td>
