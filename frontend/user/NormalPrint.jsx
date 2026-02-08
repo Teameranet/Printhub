@@ -201,12 +201,16 @@ export function NormalPrint({ initialSpecs, title }) {
                     copies: 1,
                     pagesPerSet: '1'
                 },
-                price: 0
+                price: 0,
+                bindingCost: 0,
+                singlePageCost: 0
             };
 
             // Initial price calculation
             const priceData = await calculatePrice(newFileObj);
-            newFileObj.price = priceData?.total || pages * 2; // Default ₹2 per page
+            newFileObj.price = priceData?.total || pages * 2;
+            newFileObj.bindingCost = priceData?.bindingCost || 0;
+            newFileObj.singlePageCost = priceData?.singlePageCost || (newFileObj.settings.printColorId === 'color' ? 10 : 2);
             newFiles.push(newFileObj);
         }
 
@@ -233,19 +237,32 @@ export function NormalPrint({ initialSpecs, title }) {
                 // Effective sides needed after applying pages per set
                 const sidesNeeded = Math.ceil(activePages / pps);
 
-                let totalPrice = sidesNeeded * baseRate;
+                let printPrice = sidesNeeded * baseRate;
 
-                // If double-sided, we might give a small discount or calculate differently.
-                // Usually, double-sided printing is cheaper than two single-sided sheets.
-                // If it's double sided, sidesNeeded represents the number of page-sides.
+                // Apply double-sided discount
                 if (isDoubleSided) {
-                    totalPrice = totalPrice * 0.8; // 20% discount for double-sided
+                    printPrice = printPrice * 0.8;
                 }
 
-                return totalPrice * copies;
+                // Binding costs
+                let bindingCostPerUnit = 0;
+                switch (obj.settings.bindingTypeId) {
+                    case 'spiral': bindingCostPerUnit = 20; break;
+                    case 'staple': bindingCostPerUnit = 5; break;
+                    case 'hardcover': bindingCostPerUnit = 100; break;
+                    default: bindingCostPerUnit = 0;
+                }
+
+                const total = (printPrice + bindingCostPerUnit) * copies;
+
+                return {
+                    total,
+                    bindingCost: bindingCostPerUnit * copies,
+                    singlePageCost: baseRate * (isDoubleSided ? 0.8 : 1)
+                };
             };
 
-            const localTotal = calculateLocal(fileObj);
+            const local = calculateLocal(fileObj);
 
             // Try to get price from API if available
             try {
@@ -263,20 +280,29 @@ export function NormalPrint({ initialSpecs, title }) {
 
                 if (response.ok) {
                     const data = await response.json();
-                    return { total: data.total ?? localTotal };
+                    return {
+                        total: data.total ?? local.total,
+                        bindingCost: data.bindingCost ?? local.bindingCost,
+                        singlePageCost: data.singlePageCost ?? local.singlePageCost
+                    };
                 }
             } catch (e) {
                 console.warn('API Price calculation failed, using local logic');
             }
 
-            return { total: localTotal };
+            return local;
         } catch (error) {
             console.error('Price calculation error:', error);
             const fallbackRate = fileObj.settings.printColorId === 'color' ? 10 : 2;
             const pps = parseInt(fileObj.settings.pagesPerSet) || 1;
             const activePages = parsePageRange(fileObj.settings.pageRange, fileObj.pages);
             const sides = Math.ceil(activePages / pps);
-            return { total: sides * fallbackRate * (fileObj.settings.copies || 1) };
+            const printPrice = sides * fallbackRate;
+            return {
+                total: printPrice * (fileObj.settings.copies || 1),
+                bindingCost: 0,
+                singlePageCost: fallbackRate
+            };
         }
     };
 
@@ -301,7 +327,12 @@ export function NormalPrint({ initialSpecs, title }) {
                 if (targetFile) {
                     calculatePrice(targetFile).then(priceData => {
                         setFiles(currentFiles => currentFiles.map(cf =>
-                            cf.id === id ? { ...cf, price: priceData.total } : cf
+                            cf.id === id ? {
+                                ...cf,
+                                price: priceData.total,
+                                bindingCost: priceData.bindingCost,
+                                singlePageCost: priceData.singlePageCost
+                            } : cf
                         ));
                     });
                 }
@@ -446,6 +477,10 @@ export function NormalPrint({ initialSpecs, title }) {
                             </div>
 
                             <div className="file-cost-footer">
+                                <span className="cost-label">Binding Cost</span>
+                                <span className="cost-amount">₹{(fileObj.bindingCost || 0).toFixed(2)}</span>
+                                <span className="cost-label">Per Page Cost</span>
+                                <span className="cost-amount">₹{(fileObj.singlePageCost || 0).toFixed(2)}</span>
                                 <span className="cost-label">Estimated Cost</span>
                                 <span className="cost-amount">₹{(fileObj.price || 0).toFixed(2)}</span>
                             </div>
