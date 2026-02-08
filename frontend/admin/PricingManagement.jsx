@@ -74,15 +74,18 @@ const PricingManagement = () => {
     const [saveMessage, setSaveMessage] = useState({ type: '', text: '' });
     const [editingRule, setEditingRule] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [newRule, setNewRule] = useState({
+
+    // Support multiple rules at once
+    const initialRuleRow = {
         colorType: 'bw',
         sideType: 'single',
         fromPage: 1,
-        toPage: 20,
+        toPage: 1000,
         studentPrice: 1.50,
         institutePrice: 1.50,
         regularPrice: 2.00
-    });
+    };
+    const [newRuleRows, setNewRuleRows] = useState([initialRuleRow]);
 
     // Load pricing rules from localStorage
     useEffect(() => {
@@ -121,24 +124,40 @@ const PricingManagement = () => {
         }
     };
 
-    const handleAddRule = () => {
-        const rule = {
-            ...newRule,
-            id: `rule-${Date.now()}`
-        };
-        const updatedRules = [...pricingRules, rule];
+    const handleAddRules = () => {
+        const timestamp = Date.now();
+        const rulesToAdd = newRuleRows.map((rule, index) => ({
+            ...rule,
+            id: `rule-${timestamp}-${index}`
+        }));
+
+        const updatedRules = [...pricingRules, ...rulesToAdd];
         setPricingRules(updatedRules);
         savePricingRules(updatedRules);
         setShowAddModal(false);
-        setNewRule({
-            colorType: 'bw',
-            sideType: 'single',
-            fromPage: 1,
-            toPage: 20,
-            studentPrice: 1.50,
-            institutePrice: 1.50,
-            regularPrice: 2.00
-        });
+        setNewRuleRows([initialRuleRow]);
+    };
+
+    const addNewRow = () => {
+        const lastRow = newRuleRows[newRuleRows.length - 1];
+        setNewRuleRows([...newRuleRows, {
+            ...initialRuleRow,
+            fromPage: (parseInt(lastRow.toPage) || 0) + 1,
+            toPage: (parseInt(lastRow.toPage) || 0) + 50
+        }]);
+    };
+
+    const removeRow = (index) => {
+        if (newRuleRows.length > 1) {
+            const updatedRows = newRuleRows.filter((_, i) => i !== index);
+            setNewRuleRows(updatedRows);
+        }
+    };
+
+    const updateNewRuleRow = (index, field, value) => {
+        const updatedRows = [...newRuleRows];
+        updatedRows[index] = { ...updatedRows[index], [field]: value };
+        setNewRuleRows(updatedRows);
     };
 
     const handleUpdateRule = (ruleId, field, value) => {
@@ -175,10 +194,10 @@ const PricingManagement = () => {
     }
 
     return (
-        <div className="pricing-management">
-            <div className="pricing-header">
-                <div className="pricing-title-section">
-                    <h2><DollarSign size={24} /> Normal Printing Prices</h2>
+        <div className="management-content">
+            <div className="management-header">
+                <div>
+                    <h1>Normal Printing Prices</h1>
                     <p>Configure printing prices based on user type, colour, sides, and page ranges</p>
                 </div>
                 <button className="btn-add-rule" onClick={() => setShowAddModal(true)}>
@@ -277,7 +296,7 @@ const PricingManagement = () => {
                                             <input
                                                 type="number"
                                                 min="0"
-                                                step="0.01"
+                                                step="0.1"
                                                 value={rule.studentPrice}
                                                 onChange={(e) => handleUpdateRule(rule.id, 'studentPrice', parseFloat(e.target.value) || 0)}
                                                 className="edit-input price"
@@ -291,7 +310,7 @@ const PricingManagement = () => {
                                             <input
                                                 type="number"
                                                 min="0"
-                                                step="0.01"
+                                                step="0.1"
                                                 value={rule.institutePrice}
                                                 onChange={(e) => handleUpdateRule(rule.id, 'institutePrice', parseFloat(e.target.value) || 0)}
                                                 className="edit-input price"
@@ -305,7 +324,7 @@ const PricingManagement = () => {
                                             <input
                                                 type="number"
                                                 min="0"
-                                                step="0.01"
+                                                step="0.1"
                                                 value={rule.regularPrice}
                                                 onChange={(e) => handleUpdateRule(rule.id, 'regularPrice', parseFloat(e.target.value) || 0)}
                                                 className="edit-input price"
@@ -378,98 +397,119 @@ const PricingManagement = () => {
             {/* Add Rule Modal */}
             {showAddModal && (
                 <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-                    <div className="add-rule-modal" onClick={(e) => e.stopPropagation()}>
+                    <button className="modal-close-outer" onClick={() => setShowAddModal(false)}>
+                        <X size={24} />
+                    </button>
+
+                    <div className="add-rule-modal multi-rule" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3><Plus size={20} /> Add New Price Rule</h3>
-                            <button className="modal-close" onClick={() => setShowAddModal(false)}>
-                                <X size={20} />
-                            </button>
+                            <h3><Plus size={20} /> Add New Price Rules</h3>
                         </div>
                         <div className="modal-body">
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>Printed Colour</label>
-                                    <select
-                                        value={newRule.colorType}
-                                        onChange={(e) => setNewRule({ ...newRule, colorType: e.target.value })}
-                                    >
-                                        {COLOR_OPTIONS.map(c => (
-                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                        ))}
-                                    </select>
+                            {newRuleRows.map((row, index) => (
+                                <div key={index} className="pricing-rule-block">
+                                    {index > 0 && <div className="rule-divider"><span>RANGE WISE PRICE {index + 1}</span></div>}
+                                    <div className="form-grid">
+                                        <div className="form-group floating-label">
+                                            <select
+                                                value={row.colorType}
+                                                onChange={(e) => updateNewRuleRow(index, 'colorType', e.target.value)}
+                                            >
+                                                {COLOR_OPTIONS.map(c => (
+                                                    <option key={c.id} value={c.id}>{c.name}</option>
+                                                ))}
+                                            </select>
+                                            <label>Printed Colour</label>
+                                        </div>
+                                        <div className="form-group floating-label">
+                                            <select
+                                                value={row.sideType}
+                                                onChange={(e) => updateNewRuleRow(index, 'sideType', e.target.value)}
+                                            >
+                                                {SIDE_OPTIONS.map(s => (
+                                                    <option key={s.id} value={s.id}>{s.name}</option>
+                                                ))}
+                                            </select>
+                                            <label>Print Sides</label>
+                                        </div>
+                                        <div className="form-group floating-label">
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={row.fromPage}
+                                                onChange={(e) => updateNewRuleRow(index, 'fromPage', parseInt(e.target.value) || 0)}
+                                            />
+                                            <label>From Page</label>
+                                        </div>
+                                        <div className="form-group floating-label">
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={row.toPage}
+                                                onChange={(e) => updateNewRuleRow(index, 'toPage', parseInt(e.target.value) || 0)}
+                                            />
+                                            <label>To Page</label>
+                                        </div>
+                                        <div className="form-group floating-label">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={row.studentPrice}
+                                                onChange={(e) => updateNewRuleRow(index, 'studentPrice', parseFloat(e.target.value) || 0)}
+                                            />
+                                            <label>Student Price</label>
+                                        </div>
+                                        <div className="form-group floating-label">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={row.institutePrice}
+                                                onChange={(e) => updateNewRuleRow(index, 'institutePrice', parseFloat(e.target.value) || 0)}
+                                            />
+                                            <label>Institute Price</label>
+                                        </div>
+                                        <div className="form-group floating-label">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={row.regularPrice}
+                                                onChange={(e) => updateNewRuleRow(index, 'regularPrice', parseFloat(e.target.value) || 0)}
+                                            />
+                                            <label>Regular Users Price</label>
+                                        </div>
+                                        <div className="add-more-container">
+                                            <span className="add-more-label">Add More</span>
+                                            <div className="add-more-actions">
+                                                <button className="btn-circle-add" onClick={addNewRow} title="Add another range">
+                                                    <Plus size={16} />
+                                                </button>
+                                                <button
+                                                    className={`btn-circle-remove ${newRuleRows.length === 1 ? 'disabled' : ''}`}
+                                                    onClick={() => removeRow(index)}
+                                                    title="Remove this range"
+                                                    disabled={newRuleRows.length === 1}
+                                                >
+                                                    <Minus size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label>Print Sides</label>
-                                    <select
-                                        value={newRule.sideType}
-                                        onChange={(e) => setNewRule({ ...newRule, sideType: e.target.value })}
-                                    >
-                                        {SIDE_OPTIONS.map(s => (
-                                            <option key={s.id} value={s.id}>{s.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label>From Page</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={newRule.fromPage}
-                                        onChange={(e) => setNewRule({ ...newRule, fromPage: parseInt(e.target.value) || 1 })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>To Page</label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={newRule.toPage}
-                                        onChange={(e) => setNewRule({ ...newRule, toPage: parseInt(e.target.value) || 1 })}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-row three-col">
-                                <div className="form-group">
-                                    <label>Student Price (₹)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={newRule.studentPrice}
-                                        onChange={(e) => setNewRule({ ...newRule, studentPrice: parseFloat(e.target.value) || 0 })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Institute Price (₹)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={newRule.institutePrice}
-                                        onChange={(e) => setNewRule({ ...newRule, institutePrice: parseFloat(e.target.value) || 0 })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label>Regular Users Price (₹)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={newRule.regularPrice}
-                                        onChange={(e) => setNewRule({ ...newRule, regularPrice: parseFloat(e.target.value) || 0 })}
-                                    />
-                                </div>
-                            </div>
+                            ))}
                         </div>
+
+                        <div className="modal-divider"></div>
+
                         <div className="modal-footer">
                             <button className="btn-cancel" onClick={() => setShowAddModal(false)}>
                                 Cancel
                             </button>
-                            <button className="btn-add" onClick={handleAddRule}>
+                            <button className="btn-add-gradient" onClick={handleAddRules}>
                                 <Plus size={18} />
-                                Add Rule
+                                Add {newRuleRows.length > 1 ? `${newRuleRows.length} Rules` : 'Rule'}
                             </button>
                         </div>
                     </div>

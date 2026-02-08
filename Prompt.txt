@@ -111,7 +111,7 @@ Design the Admin page as per this system with advance search & filter functional
 Update the Printing price as per admin user add make as per design system 
 - Normal printing price: User able to add or edit Normal printing price as per (user profile type , Colour , Side  & Page Range wise)
 - Binding Management : User able to add or edit Binding Type & Binding price as per user profile & page range
-- Fletch the Normal printing price & Binding  price as per different type of user as per set on admin panel on real time
+- fetch  the Normal printing price & Binding  price as per different type of user as per set on admin panel on real time
 
 - Add or edit paper size , paper type for specifications service 
 - Section for Add or edit Service , Service Type & Service price (Comming Soon)

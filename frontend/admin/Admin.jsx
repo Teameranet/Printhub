@@ -3,11 +3,12 @@ import {
     LayoutDashboard, Settings, LogOut,
     ChevronDown, ChevronRight, CheckCircle, XCircle,
     AlertCircle, RefreshCw, TrendingUp,
-    ChevronLeft, Clock, Package, Users, ShoppingBag, Activity
+    ChevronLeft, Clock, Package, Users, ShoppingBag, Activity, DollarSign
 } from 'lucide-react';
 import UserManagement from './UserManagement';
 import OrderManagement from './OrderManagement';
 import SettingsPage from './Settings';
+import PricingManagement from './PricingManagement';
 import './admin.css';
 
 // Mock data generator for demo
@@ -248,6 +249,7 @@ const Admin = ({ onLogout, user }) => {
             case 'dashboard': return renderDashboard();
             case 'users': return <UserManagement users={users} orders={orders} isLoading={isLoading} />;
             case 'orders': return <OrderManagement orders={orders} isLoading={isLoading} handleUpdateOrderStatus={handleUpdateOrderStatus} />;
+            case 'pricing': return <PricingManagement />;
             case 'settings': return <SettingsPage user={user} />;
             default: return renderDashboard();
         }
@@ -291,6 +293,13 @@ const Admin = ({ onLogout, user }) => {
                         {stats.pendingOrders > 0 && (
                             <span className="nav-badge">{stats.pendingOrders}</span>
                         )}
+                    </button>
+                    <button
+                        className={`nav-btn ${activeTab === 'pricing' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('pricing')}
+                    >
+                        <DollarSign size={20} />
+                        {!sidebarCollapsed && <span>Normal Print Pricing</span>}
                     </button>
                     <button
                         className={`nav-btn ${activeTab === 'settings' ? 'active' : ''}`}
