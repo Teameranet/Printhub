@@ -2,7 +2,7 @@
    Home Page Styles
    ======================================== */
 
-.home {
+   .home {
     min-height: 100vh;
 }
 
@@ -222,19 +222,36 @@
     text-align: center;
     max-width: 800px;
     margin: 0 auto var(--space-12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.section-header .section-title {
+    margin: 0 auto var(--space-1);
+    text-align: center !important;
+    width: 100%;
+    display: block;
 }
 
 .section-subtitle {
     font-size: var(--font-size-lg);
     color: var(--color-gray-600);
-    margin-top: var(--space-2);
+    margin: var(--space-2) auto 0;
+    text-align: center !important;
+    width: 100%;
+    display: block;
 }
 
 .main-services-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-12);
-    margin-top: var(--space-8);
+    margin: var(--space-8) auto 0;
+    max-width: 1200px;
+    justify-items: center;
 }
 
 .main-service-card {
@@ -508,7 +525,9 @@
     font-size: var(--font-size-3xl);
     font-weight: var(--font-bold);
     color: var(--color-gray-900);
-    margin-bottom: var(--space-12);
+    margin: 0 auto var(--space-12);
+    width: 100%;
+    display: block;
 }
 
 .features-grid {

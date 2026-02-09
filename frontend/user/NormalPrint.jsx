@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-    Upload, File, CheckCircle, Loader2, X, Trash2, ChevronRight,
-    Info, AlertCircle, FileText, Settings, CreditCard, Layers, Plus,
-    Clock
+    Upload, Loader2, Trash2, ChevronRight,
+    Info, FileText, Plus, Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -42,7 +41,7 @@ const DEFAULT_CONFIG = {
     ]
 };
 
-export function NormalPrint({ initialSpecs, title }) {
+export function NormalPrint({ title }) {
     const [step, setStep] = useState(1);
     const [files, setFiles] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -158,11 +157,11 @@ export function NormalPrint({ initialSpecs, title }) {
             const response = await fetch(`${API_URL}/api/config`);
             if (response.ok) {
                 const data = await response.json();
-                setConfig(prev => ({
+                setConfig({
                     ...DEFAULT_CONFIG,
                     ...data,
                     pagesPerSet: data.pagesPerSet || DEFAULT_CONFIG.pagesPerSet
-                }));
+                });
             }
         } catch (error) {
             console.error('Error fetching config:', error);
@@ -218,7 +217,7 @@ export function NormalPrint({ initialSpecs, title }) {
             const pages = await getPageCount(file);
 
             const newFileObj = {
-                id: Math.random().toString(36).substr(2, 9),
+                id: Math.random().toString(36).substring(2, 11),
                 file,
                 name: file.name,
                 pages,
@@ -562,9 +561,20 @@ export function NormalPrint({ initialSpecs, title }) {
                                     <label>Copies</label>
                                     <input
                                         type="number"
-                                        min="1"
+                                        min="0"
                                         value={fileObj.settings.copies}
-                                        onChange={(e) => updateFileSettings(fileObj.id, { copies: parseInt(e.target.value) || 1 })}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value === '') {
+                                                updateFileSettings(fileObj.id, { copies: '' });
+                                                return;
+                                            }
+
+                                            const num = parseInt(value, 10);
+                                            if (!isNaN(num)) {
+                                                updateFileSettings(fileObj.id, { copies: num });
+                                            }
+                                        }}
                                     />
                                 </div>
                                 <div className="setting-field">
