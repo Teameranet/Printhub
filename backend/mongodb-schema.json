@@ -1,0 +1,529 @@
+{
+  "database": "printhub_db",
+  "description": "MongoDB Schema Configuration for PrintHub Application",
+  "version": "1.0.0",
+  "collections": [
+    {
+      "name": "users",
+      "description": "User accounts and authentication data",
+      "indexes": [
+        { "fields": { "email": 1 }, "unique": true },
+        { "fields": { "phone": 1 }, "unique": true },
+        { "fields": { "createdAt": -1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "name": "String (required)",
+        "email": "String (required, unique)",
+        "phone": "String (required, unique, 10 digits)",
+        "password": "String (required, hashed)",
+        "profileType": "String (enum: ['Regular', 'Student', 'Institute'], default: 'Regular')",
+        "role": "String (enum: ['user', 'admin'], default: 'user')",
+        "address": "String (optional)",
+        "pincode": "String (optional, 6 digits)",
+        "alternateMobile": "String (optional, 10 digits)",
+        "isVerified": "Boolean (default: false)",
+        "isActive": "Boolean (default: true)",
+        "lastActive": "Date",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "name": "Rahul Sharma",
+        "email": "9876543210@printhub.local",
+        "phone": "9876543210",
+        "password": "$2b$10$hashedpassword",
+        "profileType": "Regular",
+        "role": "user",
+        "address": "123 Main Street, Mumbai, Maharashtra",
+        "pincode": "400001",
+        "isVerified": true,
+        "isActive": true,
+        "lastActive": "2024-02-11T10:30:00Z",
+        "createdAt": "2024-01-15T08:00:00Z",
+        "updatedAt": "2024-02-11T10:30:00Z"
+      }
+    },
+    {
+      "name": "orders",
+      "description": "Print orders placed by users",
+      "indexes": [
+        { "fields": { "userId": 1 } },
+        { "fields": { "status": 1 } },
+        { "fields": { "createdAt": -1 } },
+        { "fields": { "orderNumber": 1 }, "unique": true }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "orderNumber": "String (required, unique, format: ORD-XXXXXX)",
+        "userId": "ObjectId (ref: users, required)",
+        "userName": "String (required)",
+        "userPhone": "String (required)",
+        "userEmail": "String (required)",
+        "status": "String (enum: ['pending', 'processing', 'ready', 'delivered', 'cancelled'], default: 'pending')",
+        "type": "String (enum: ['Normal Print', 'Advanced Print'], required)",
+        "deliveryType": "String (enum: ['pickup', 'delivery'], required)",
+        "deliveryAddress": {
+          "fullAddress": "String (optional)",
+          "pincode": "String (optional)",
+          "alternateMobile": "String (optional)"
+        },
+        "pickupDetails": {
+          "pickupDate": "Date (optional)",
+          "pickupTime": "String (optional)",
+          "storeName": "String (optional)",
+          "storeAddress": "String (optional)"
+        },
+        "files": [
+          {
+            "fileId": "String (required)",
+            "fileName": "String (required)",
+            "fileUrl": "String (optional, S3/cloud storage URL)",
+            "fileSize": "Number (bytes)",
+            "fileType": "String (pdf, docx, pptx, jpg, png)",
+            "pages": "Number (required)",
+            "settings": {
+              "pageRange": "String (e.g., '1-10', '1,3,5-8')",
+              "printColorId": "String (enum: ['bw', 'color'])",
+              "printSideId": "String (enum: ['single', 'double'])",
+              "bindingTypeId": "String (enum: ['none', 'spiral', 'staple', 'hardcover'])",
+              "copies": "Number (min: 1)",
+              "pagesPerSet": "String (enum: ['1', '2', '4', '6', '9', '16'])"
+            },
+            "pricing": {
+              "pricePerPage": "Number",
+              "bindingCost": "Number",
+              "totalPrice": "Number"
+            }
+          }
+        ],
+        "pricing": {
+          "subtotal": "Number (required)",
+          "deliveryCharges": "Number (default: 0)",
+          "discount": "Number (default: 0)",
+          "total": "Number (required)"
+        },
+        "paymentStatus": "String (enum: ['pending', 'completed', 'failed', 'refunded'], default: 'pending')",
+        "paymentMethod": "String (enum: ['cash', 'card', 'upi', 'online'], optional)",
+        "paymentId": "String (optional, payment gateway transaction ID)",
+        "notes": "String (optional, customer notes)",
+        "adminNotes": "String (optional, internal notes)",
+        "statusHistory": [
+          {
+            "status": "String",
+            "timestamp": "Date",
+            "updatedBy": "String (user/admin name)"
+          }
+        ],
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "orderNumber": "ORD-123456",
+        "userId": "ObjectId('507f1f77bcf86cd799439011')",
+        "userName": "Rahul Sharma",
+        "userPhone": "9876543210",
+        "userEmail": "9876543210@printhub.local",
+        "status": "processing",
+        "type": "Normal Print",
+        "deliveryType": "pickup",
+        "pickupDetails": {
+          "pickupDate": "2024-02-12T00:00:00Z",
+          "pickupTime": "14:00",
+          "storeName": "PrintHub Central Store",
+          "storeAddress": "Dehu Phata, Alandi - Moshi Rd, Alandi, Maharashtra 412105"
+        },
+        "files": [
+          {
+            "fileId": "file_abc123",
+            "fileName": "Project_Report.pdf",
+            "fileUrl": "https://s3.amazonaws.com/printhub/files/abc123.pdf",
+            "fileSize": 2048576,
+            "fileType": "pdf",
+            "pages": 45,
+            "settings": {
+              "pageRange": "1-45",
+              "printColorId": "bw",
+              "printSideId": "double",
+              "bindingTypeId": "spiral",
+              "copies": 2,
+              "pagesPerSet": "1"
+            },
+            "pricing": {
+              "pricePerPage": 2,
+              "bindingCost": 20,
+              "totalPrice": 180
+            }
+          }
+        ],
+        "pricing": {
+          "subtotal": 180,
+          "deliveryCharges": 0,
+          "discount": 0,
+          "total": 180
+        },
+        "paymentStatus": "completed",
+        "paymentMethod": "upi",
+        "paymentId": "pay_abc123xyz",
+        "statusHistory": [
+          {
+            "status": "pending",
+            "timestamp": "2024-02-11T10:00:00Z",
+            "updatedBy": "System"
+          },
+          {
+            "status": "processing",
+            "timestamp": "2024-02-11T10:30:00Z",
+            "updatedBy": "Admin"
+          }
+        ],
+        "createdAt": "2024-02-11T10:00:00Z",
+        "updatedAt": "2024-02-11T10:30:00Z"
+      }
+    },
+    {
+      "name": "pricing_rules",
+      "description": "Dynamic pricing rules for normal print services",
+      "indexes": [
+        { "fields": { "colorType": 1, "sideType": 1 } },
+        { "fields": { "isActive": 1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "ruleName": "String (required)",
+        "colorType": "String (enum: ['bw', 'color'], required)",
+        "sideType": "String (enum: ['single', 'double'], required)",
+        "fromPage": "Number (required, min: 1)",
+        "toPage": "Number (required, min: 1)",
+        "regularPrice": "Number (required, min: 0)",
+        "studentPrice": "Number (required, min: 0)",
+        "institutePrice": "Number (required, min: 0)",
+        "isActive": "Boolean (default: true)",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "ruleName": "B&W Single-Sided 1-50 pages",
+        "colorType": "bw",
+        "sideType": "single",
+        "fromPage": 1,
+        "toPage": 50,
+        "regularPrice": 2,
+        "studentPrice": 1.5,
+        "institutePrice": 1.2,
+        "isActive": true,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "binding_types",
+      "description": "Available binding types and their configurations",
+      "indexes": [
+        { "fields": { "bindingId": 1 }, "unique": true },
+        { "fields": { "isActive": 1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "bindingId": "String (required, unique)",
+        "name": "String (required)",
+        "description": "String (optional)",
+        "isActive": "Boolean (default: true)",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "bindingId": "spiral",
+        "name": "Spiral Binding",
+        "description": "Professional spiral binding for documents",
+        "isActive": true,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "binding_prices",
+      "description": "Pricing rules for binding services",
+      "indexes": [
+        { "fields": { "bindingTypeId": 1 } },
+        { "fields": { "isActive": 1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "bindingTypeId": "String (required)",
+        "fromPage": "Number (required, min: 1)",
+        "toPage": "Number (required, min: 1)",
+        "regularPrice": "Number (required, min: 0)",
+        "studentPrice": "Number (required, min: 0)",
+        "institutePrice": "Number (required, min: 0)",
+        "isActive": "Boolean (default: true)",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "bindingTypeId": "spiral",
+        "fromPage": 1,
+        "toPage": 100,
+        "regularPrice": 20,
+        "studentPrice": 15,
+        "institutePrice": 12,
+        "isActive": true,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "advanced_services",
+      "description": "Advanced printing services catalog",
+      "indexes": [
+        { "fields": { "serviceId": 1 }, "unique": true },
+        { "fields": { "isActive": 1 } },
+        { "fields": { "popular": -1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "serviceId": "String (required, unique)",
+        "name": "String (required)",
+        "description": "String (required)",
+        "iconName": "String (required)",
+        "price": "String (required, e.g., '₹500+')",
+        "popular": "Boolean (default: false)",
+        "imageUrl": "String (optional)",
+        "sizes": ["String (array of available sizes)"],
+        "finishes": ["String (array of available finishes)"],
+        "isActive": "Boolean (default: true)",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "serviceId": "letterhead",
+        "name": "Letterhead",
+        "description": "Professional letterheads for your business correspondence",
+        "iconName": "FileText",
+        "price": "₹5/page",
+        "popular": true,
+        "imageUrl": "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=400",
+        "sizes": ["A4", "Letter"],
+        "finishes": ["Matte", "Glossy", "Linen"],
+        "isActive": true,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "cart_items",
+      "description": "Temporary cart items for users (optional, can use session storage)",
+      "indexes": [
+        { "fields": { "userId": 1 } },
+        { "fields": { "createdAt": 1 }, "expireAfterSeconds": 604800 }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "userId": "ObjectId (ref: users, required)",
+        "items": [
+          {
+            "fileId": "String (required)",
+            "fileName": "String (required)",
+            "fileUrl": "String (optional)",
+            "pages": "Number (required)",
+            "settings": {
+              "pageRange": "String",
+              "printColorId": "String",
+              "printSideId": "String",
+              "bindingTypeId": "String",
+              "copies": "Number",
+              "pagesPerSet": "String"
+            },
+            "price": "Number (required)",
+            "bindingCost": "Number",
+            "singlePageCost": "Number"
+          }
+        ],
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "userId": "ObjectId('507f1f77bcf86cd799439011')",
+        "items": [
+          {
+            "fileId": "temp_abc123",
+            "fileName": "Document.pdf",
+            "pages": 10,
+            "settings": {
+              "pageRange": "1-10",
+              "printColorId": "bw",
+              "printSideId": "single",
+              "bindingTypeId": "none",
+              "copies": 1,
+              "pagesPerSet": "1"
+            },
+            "price": 20,
+            "bindingCost": 0,
+            "singlePageCost": 2
+          }
+        ],
+        "createdAt": "2024-02-11T10:00:00Z",
+        "updatedAt": "2024-02-11T10:00:00Z"
+      }
+    },
+    {
+      "name": "system_settings",
+      "description": "Global system configuration and settings",
+      "indexes": [
+        { "fields": { "key": 1 }, "unique": true }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "key": "String (required, unique)",
+        "value": "Mixed (any type)",
+        "description": "String (optional)",
+        "category": "String (optional)",
+        "isActive": "Boolean (default: true)",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "key": "store_info",
+        "value": {
+          "name": "PrintHub Central Store",
+          "address": "Dehu Phata, Alandi - Moshi Rd, opp. Anand Hospital, Alandi, Devachi, Maharashtra 412105",
+          "phone": "1234567890",
+          "email": "info@printhub.com",
+          "hours": "9:00 AM - 9:00 PM",
+          "estimatedReadyTime": "2-4 Hours"
+        },
+        "description": "Store information and contact details",
+        "category": "general",
+        "isActive": true,
+        "createdAt": "2024-01-01T00:00:00Z",
+        "updatedAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "file_uploads",
+      "description": "Metadata for uploaded files",
+      "indexes": [
+        { "fields": { "userId": 1 } },
+        { "fields": { "orderId": 1 } },
+        { "fields": { "createdAt": -1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "fileId": "String (required, unique)",
+        "userId": "ObjectId (ref: users, required)",
+        "orderId": "ObjectId (ref: orders, optional)",
+        "fileName": "String (required)",
+        "originalName": "String (required)",
+        "fileSize": "Number (bytes, required)",
+        "fileType": "String (required)",
+        "mimeType": "String (required)",
+        "storageUrl": "String (required, S3/cloud storage URL)",
+        "thumbnailUrl": "String (optional)",
+        "pages": "Number (optional)",
+        "uploadStatus": "String (enum: ['pending', 'completed', 'failed'], default: 'pending')",
+        "createdAt": "Date (default: Date.now)",
+        "updatedAt": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "fileId": "file_abc123xyz",
+        "userId": "ObjectId('507f1f77bcf86cd799439011')",
+        "orderId": "ObjectId('507f1f77bcf86cd799439012')",
+        "fileName": "abc123xyz.pdf",
+        "originalName": "Project_Report.pdf",
+        "fileSize": 2048576,
+        "fileType": "pdf",
+        "mimeType": "application/pdf",
+        "storageUrl": "https://s3.amazonaws.com/printhub/files/abc123xyz.pdf",
+        "thumbnailUrl": "https://s3.amazonaws.com/printhub/thumbnails/abc123xyz.jpg",
+        "pages": 45,
+        "uploadStatus": "completed",
+        "createdAt": "2024-02-11T10:00:00Z",
+        "updatedAt": "2024-02-11T10:00:00Z"
+      }
+    },
+    {
+      "name": "audit_logs",
+      "description": "System audit trail for important actions",
+      "indexes": [
+        { "fields": { "userId": 1 } },
+        { "fields": { "action": 1 } },
+        { "fields": { "timestamp": -1 } }
+      ],
+      "schema": {
+        "_id": "ObjectId",
+        "userId": "ObjectId (ref: users, optional)",
+        "action": "String (required)",
+        "entity": "String (required, e.g., 'order', 'user', 'pricing')",
+        "entityId": "String (optional)",
+        "changes": "Object (optional, before/after values)",
+        "ipAddress": "String (optional)",
+        "userAgent": "String (optional)",
+        "timestamp": "Date (default: Date.now)"
+      },
+      "sampleDocument": {
+        "userId": "ObjectId('507f1f77bcf86cd799439011')",
+        "action": "order_status_updated",
+        "entity": "order",
+        "entityId": "ORD-123456",
+        "changes": {
+          "before": { "status": "pending" },
+          "after": { "status": "processing" }
+        },
+        "ipAddress": "192.168.1.1",
+        "userAgent": "Mozilla/5.0...",
+        "timestamp": "2024-02-11T10:30:00Z"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "from": "orders",
+      "to": "users",
+      "type": "many-to-one",
+      "foreignKey": "userId",
+      "description": "Each order belongs to one user"
+    },
+    {
+      "from": "cart_items",
+      "to": "users",
+      "type": "one-to-one",
+      "foreignKey": "userId",
+      "description": "Each user has one cart"
+    },
+    {
+      "from": "file_uploads",
+      "to": "users",
+      "type": "many-to-one",
+      "foreignKey": "userId",
+      "description": "Each file upload belongs to one user"
+    },
+    {
+      "from": "file_uploads",
+      "to": "orders",
+      "type": "many-to-one",
+      "foreignKey": "orderId",
+      "description": "Each file can be associated with one order"
+    },
+    {
+      "from": "audit_logs",
+      "to": "users",
+      "type": "many-to-one",
+      "foreignKey": "userId",
+      "description": "Each audit log entry can be associated with a user"
+    }
+  ],
+  "notes": [
+    "All collections should have createdAt and updatedAt timestamps",
+    "Use MongoDB ObjectId for _id fields and references",
+    "Implement proper indexing for frequently queried fields",
+    "Consider implementing TTL indexes for temporary data (cart_items)",
+    "Use enum validation for status fields to ensure data consistency",
+    "Store file URLs from cloud storage (S3, Cloudinary, etc.) rather than files in MongoDB",
+    "Implement proper password hashing (bcrypt) before storing user passwords",
+    "Use aggregation pipelines for complex queries and reports",
+    "Consider implementing soft deletes with isDeleted flag instead of hard deletes",
+    "Implement proper error handling and validation at application level",
+    "Use transactions for operations that modify multiple collections",
+    "Regular backups should be scheduled for production database"
+  ]
+}
