@@ -1,46 +1,52 @@
-// Authentication Controller
-// Implement your authentication logic here
+const User = require('../models/User');
+const { generateToken } = require('../../utils/tokenUtils');
 
-// Mock user for demo purposes - extended with Supabase-compatible metadata
-const DEMO_USER = {
-  id: 'demo-123',
-  name: 'Demo User',
-  email: 'demo.user@printhub.local',
-  phone: '9876543210',
-  profileType: 'Regular',
-  user_metadata: {
-    full_name: 'Demo User',
-    phone: '9876543210'
-  }
-};
-
-const MOCK_TOKEN = 'mock-jwt-token-for-demo-purposes';
-
+// Register a new user
 const register = async (req, res) => {
   try {
     const { email, password, name, phone, profileType } = req.body;
 
-    // For demo purposes, we'll allow registration of the demo user
-    // or any user by returning a mock response
-    const newUser = {
-      id: Date.now().toString(),
-      name: name || 'New User',
-      email: email,
-      phone: phone || '',
-      profileType: profileType || 'Regular',
-      user_metadata: {
-        full_name: name || 'New User',
-        phone: phone || ''
-      }
-    };
+    // Validation
+    if (!email || !password || !name || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields (email, password, name, phone)'
+      });
+    }
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'Email already registered'
+      });
+    }
+
+    // Create new user
+    const user = new User({
+      name,
+      email: email.toLowerCase(),
+      password,
+      phone,
+      profileType: profileType || 'Regular'
+    });
+
+    // Save user to database
+    await user.save();
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    // Return response
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: newUser,
-      token: MOCK_TOKEN
+      user: user.toJSON(),
+      token
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -48,48 +54,66 @@ const register = async (req, res) => {
   }
 };
 
+// Login user (accepts email, or phone which is converted to digits@printhub.local to match signup)
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const normalizedEmail = email?.toLowerCase();
+    let { email, phone, password } = req.body;
 
-    // Check for demo user credentials
-    if (normalizedEmail === 'demo.user@printhub.local' && password === 'password123') {
-      return res.status(200).json({
-        success: true,
-        message: 'Demo login successful',
-        user: DEMO_USER,
-        token: MOCK_TOKEN
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email or phone and password'
       });
     }
 
-    // Fallback: simple validation for other "users"
-    if (email && password) {
-      const name = email.split('@')[0];
-      return res.status(200).json({
-        success: true,
-        message: 'Login successful',
-        user: {
-          id: 'user-' + Date.now(),
-          name: name,
-          email: email,
-          user_metadata: {
-            full_name: name
-          }
-        },
-        token: MOCK_TOKEN
+    if (phone != null && String(phone).trim() && !email) {
+      const phoneDigits = String(phone).replace(/\D/g, '');
+      if (phoneDigits.length) email = `${phoneDigits}@printhub.local`;
+    }
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email or phone and password'
       });
     }
 
-    throw new Error('Invalid credentials');
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    const isPasswordMatch = await user.matchPassword(password);
+    if (!isPasswordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      user: user.toJSON(),
+      token
+    });
   } catch (error) {
-    res.status(401).json({
+    console.error('Login error:', error);
+    res.status(500).json({
       success: false,
       message: error.message
     });
   }
 };
 
+// Logout user
 const logout = async (req, res) => {
   try {
     res.status(200).json({
@@ -104,14 +128,24 @@ const logout = async (req, res) => {
   }
 };
 
+// Get current user
 const getCurrentUser = async (req, res) => {
   try {
-    // For demo/development, return the demo user if a token is present
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
     res.status(200).json({
       success: true,
-      user: DEMO_USER
+      user: user.toJSON()
     });
   } catch (error) {
+    console.error('Get current user error:', error);
     res.status(500).json({
       success: false,
       message: error.message

@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { authMiddleware } = require('../middleware/authMiddleware');
+const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware');
 
-// All user routes require authentication
-router.use(authMiddleware);
+// User profile routes (auth required)
+router.get('/profile', authMiddleware, userController.getProfile);
+router.put('/profile', authMiddleware, userController.updateProfile);
 
-router.get('/profile', userController.getProfile);
-router.put('/profile', userController.updateProfile);
-router.get('/', userController.getAllUsers);
-router.get('/:id', userController.getUserById);
+// Admin user management routes (auth + admin required)
+router.get('/', authMiddleware, adminMiddleware, userController.getAllUsers);
+router.get('/:id', authMiddleware, adminMiddleware, userController.getUserById);
 
 module.exports = router;
