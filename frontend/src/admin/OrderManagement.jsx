@@ -18,10 +18,23 @@ const OrderDetailsModal = ({ order, onClose, onUpdateStatus }) => {
     };
 
     const handlePrint = (file) => {
-        if (order.fileUrl) {
+        if (file && file.path) {
+            window.open(file.path, '_blank');
+        } else if (order.fileUrl) {
             window.open(order.fileUrl, '_blank');
         } else {
-            alert(`Printing: ${file.name}`);
+            alert('File URL not found');
+        }
+    };
+
+    const handleDownload = (file) => {
+        if (file && file.path) {
+            const link = document.createElement('a');
+            link.href = file.path;
+            link.download = file.name || 'download';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     };
 
@@ -99,10 +112,10 @@ const OrderDetailsModal = ({ order, onClose, onUpdateStatus }) => {
                                             <button className="btn-icon-action" onClick={() => handlePrint(file)} title="Print/View">
                                                 <Printer size={16} />
                                             </button>
-                                            <button className="btn-icon-action" title="Download">
+                                            <button className="btn-icon-action" onClick={() => handleDownload(file)} title="Download">
                                                 <Download size={16} />
                                             </button>
-                                            <button className="btn-icon-action" title="Open">
+                                            <button className="btn-icon-action" onClick={() => handlePrint(file)} title="Open">
                                                 <ExternalLink size={16} />
                                             </button>
                                         </div>

@@ -5,16 +5,7 @@ const { authMiddleware, adminMiddleware } = require('../middleware/authMiddlewar
 const multer = require('multer');
 const path = require('path');
 
-// multer setup - store in backend/uploads
-const storage = multer.diskStorage({
-	destination: function (req, file, cb) {
-		cb(null, path.join(__dirname, '..', '..', 'uploads'));
-	},
-	filename: function (req, file, cb) {
-		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-		cb(null, uniqueSuffix + path.extname(file.originalname));
-	}
-});
+const { storage } = require('../../config/cloudinary');
 const upload = multer({ storage });
 
 // Public routes
@@ -22,7 +13,20 @@ const upload = multer({ storage });
 router.get('/calculate/price', orderController.calculateOrderPrice);
 
 // Guest order: no login, just name + phone (must be before auth)
-router.post('/guest', upload.array('files', 5), orderController.createGuestOrder);
+router.post('/guest', (req, res, next) => {
+    upload.array('files', 5)(req, res, (err) => {
+        if (err) {
+            console.error('Multer/Cloudinary Error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Error uploading files to Cloudinary',
+                error: err.message,
+                details: err
+            });
+        }
+        next();
+    });
+}, orderController.createGuestOrder);
 // View guest order by ID (public, requires ?phone=)
 router.get('/guest/:id', orderController.getGuestOrderById);
 
@@ -40,7 +44,20 @@ router.get('/admin/stats', adminMiddleware, orderController.getOrderStats);
 // ===== USER ROUTES =====
 
 // Create new order (accept up to 5 files under field name 'files')
-router.post('/', upload.array('files', 5), orderController.createOrder);
+router.post('/', (req, res, next) => {
+    upload.array('files', 5)(req, res, (err) => {
+        if (err) {
+            console.error('Multer/Cloudinary Error:', err);
+            return res.status(500).json({
+                success: false,
+                message: 'Error uploading files to Cloudinary',
+                error: err.message,
+                details: err
+            });
+        }
+        next();
+    });
+}, orderController.createOrder);
 
 // Get all orders for current user
 router.get('/', orderController.getOrders);

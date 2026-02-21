@@ -53,21 +53,27 @@ const Admin = ({ onLogout, user }) => {
     const normalizeOrder = (o) => {
         const userRef = o.user || o.userId;
         const filesList = Array.isArray(o.files) ? o.files.map(f => ({
-            name: f.originalName || f.name,
-            pages: f.pages,
-            settings: f.settings
-        })) : (o.items || []);
+            name: f.originalName || f.name || f.filename,
+            pages: f.pageCount || f.pages || (o.pageCount / o.files.length) || 0,
+            settings: f.settings || {
+                colorType: o.colorType,
+                sideType: o.sideType,
+                bindingType: o.bindingType?.name || o.bindingType
+            },
+            path: f.path ? (f.path.startsWith('http') ? f.path : `${import.meta.env.VITE_API_URL || ''}${f.path}`) : null
+        })) : [];
+
         return {
             id: o._id || o.id || o.orderId,
-                        userId: userRef?._id || (userRef && userRef.id) || null,
-                        userName: userRef?.name || o.guestName || o.userDetails?.fullName || o.userName || '',
-                        userPhone: userRef?.phone || o.guestPhone || o.userDetails?.mobile || o.userPhone || '',
+            userId: userRef?._id || (userRef && userRef.id) || null,
+            userName: userRef?.name || o.guestName || o.userDetails?.fullName || o.userName || 'Guest',
+            userPhone: userRef?.phone || o.guestPhone || o.userDetails?.mobile || o.userPhone || 'N/A',
             date: o.createdAt || o.date,
             status: o.status || 'pending',
-            type: o.type || (o.items && o.items[0]?.type) || 'Print',
+            type: o.type || 'Normal Print',
             total: o.totalPrice ?? o.pricing?.total ?? o.total ?? 0,
             files: filesList,
-            fileUrl: o.fileUrl || (o.files?.[0]?.path ? `${import.meta.env.VITE_API_URL || ''}${o.files[0].path}` : null)
+            fileUrl: filesList[0]?.path || null
         };
     };
 

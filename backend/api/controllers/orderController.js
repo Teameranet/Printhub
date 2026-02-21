@@ -106,7 +106,7 @@ exports.createOrder = async (req, res) => {
         filename: f.filename,
         mimeType: f.mimetype,
         size: f.size,
-        path: `/uploads/${f.filename}`,
+        path: f.path,
       }));
     }
 
@@ -137,6 +137,12 @@ exports.createOrder = async (req, res) => {
 exports.createGuestOrder = async (req, res) => {
   try {
     const body = req.body || {};
+    console.log('--- Guest Order Request ---');
+    console.log('Body:', JSON.stringify(body, null, 2));
+    console.log('Files count:', req.files ? req.files.length : 0);
+    if (req.files) {
+      console.log('Files structure (first file):', JSON.stringify(req.files[0], null, 2));
+    }
     const colorType = body.colorType;
     const sideType = body.sideType;
     const pageCount = body.pageCount;
@@ -186,7 +192,7 @@ exports.createGuestOrder = async (req, res) => {
         filename: f.filename,
         mimeType: f.mimetype,
         size: f.size,
-        path: `/uploads/${f.filename}`,
+        path: f.path,
       }));
     }
 
@@ -204,7 +210,10 @@ exports.createGuestOrder = async (req, res) => {
       data: order,
     });
   } catch (error) {
-    console.error('Create guest order error:', error);
+    console.error('❌ Create guest order error details:', error);
+    if (error.errors) {
+      console.error('Validation Errors:', JSON.stringify(error.errors, null, 2));
+    }
     res.status(500).json({
       success: false,
       message: error.message || 'Error creating order',
