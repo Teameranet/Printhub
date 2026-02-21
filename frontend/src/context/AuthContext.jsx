@@ -45,10 +45,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, phone = null) => {
     try {
       setError(null);
-      const data = await authAPI.login({ email, password });
+      const data = await authAPI.login({ email, password, phone });
       console.debug('AuthContext.login response:', data);
       
       if (data.token) {

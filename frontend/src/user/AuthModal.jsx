@@ -84,11 +84,24 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
           profileType: formData.profileType
         });
       } else {
-        // Login: use mobile number as identifier; build email from digits-only phone so it matches signup
-        if (!formData.phone) throw new Error('Mobile number is required');
-        const phoneDigits = String(formData.phone).replace(/\D/g, '');
-        if (!phoneDigits.length) throw new Error('Please enter a valid mobile number');
-        authResult = await login(`${phoneDigits}@printhub.local`, formData.password);
+        // Login: check if input is email or phone
+        const identifier = formData.phone?.trim();
+        if (!identifier) throw new Error('Mobile number or Email is required');
+        
+        const isEmail = identifier.includes('@');
+        let loginPayload = {};
+        
+        if (isEmail) {
+          loginPayload = { email: identifier, password: formData.password };
+        } else {
+          // If phone, treat as digits-only phone logic
+          const phoneDigits = identifier.replace(/\D/g, '');
+          if (!phoneDigits.length) throw new Error('Please enter a valid mobile number/email');
+          // Send both to let backend handle it, or just email if that's the current backend expectation
+          loginPayload = { phone: identifier, password: formData.password };
+        }
+        
+        authResult = await login(loginPayload.email || null, formData.password, loginPayload.phone || null);
       }
       
       onClose();
@@ -250,13 +263,13 @@ const AuthModal = ({ isOpen, onClose, mode = 'login' }) => {
             <form onSubmit={handleSubmit} className="auth-form">
               {authMode === 'login' ? (
                 <div className="input-group-saas">
-                  <label>Mobile Number</label>
+                  <label>Mobile / Email</label>
                   <div className="input-wrapper-saas">
-                    <Phone size={18} className="input-icon-saas" />
+                    <User size={18} className="input-icon-saas" />
                     <input
-                      type="tel"
+                      type="text"
                       name="phone"
-                      placeholder="Enter your mobile number"
+                      placeholder="Mobile number or Email"
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
