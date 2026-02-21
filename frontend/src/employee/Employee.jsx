@@ -16,7 +16,7 @@ const normalizeOrder = (o) => {
     const filesList = Array.isArray(o.files) ? o.files.map(f => ({
         name: f.originalName || f.name,
         path: f.path,
-        url: f.path ? `${API_URL}${f.path.startsWith('/') ? '' : '/'}${f.path}` : null,
+        url: f.path ? (f.path.includes('http') ? f.path.substring(f.path.indexOf('http')) : `${API_URL}${f.path.startsWith('/') ? '' : '/'}${f.path}`) : null,
     })) : [];
     return {
         id: o._id || o.id || o.orderId,

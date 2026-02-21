@@ -60,7 +60,7 @@ const Admin = ({ onLogout, user }) => {
                 sideType: o.sideType,
                 bindingType: o.bindingType?.name || o.bindingType
             },
-            path: f.path ? (f.path.startsWith('http') ? f.path : `${import.meta.env.VITE_API_URL || ''}${f.path}`) : null
+            path: f.path ? (f.path.includes('http') ? f.path.substring(f.path.indexOf('http')) : `${import.meta.env.VITE_API_URL || ''}${f.path.startsWith('/') ? '' : '/'}${f.path}`) : null
         })) : [];
 
         return {
