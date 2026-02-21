@@ -84,6 +84,13 @@ exports.createOrder = async (req, res) => {
       });
     }
 
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one file attachment is required for placing an order.',
+      });
+    }
+
     const bindingTypeExists = await BindingType.findById(bindingType);
     if (!bindingTypeExists) {
       return res.status(400).json({
@@ -154,6 +161,13 @@ exports.createGuestOrder = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields: ' + missing.join(', '),
+      });
+    }
+
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one file attachment is required for placing an order.',
       });
     }
 

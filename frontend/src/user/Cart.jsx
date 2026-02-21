@@ -16,6 +16,12 @@ const Cart = () => {
     };
 
     const handleProceedToCheckout = () => {
+        const missingFiles = cartItems.filter(item => !(item.file instanceof File));
+        if (missingFiles.length > 0) {
+            alert(`Some files are missing because the page was refreshed. Please remove them and re-upload your documents.`);
+            return;
+        }
+
         navigate('/checkout', {
             state: {
                 files: [...cartItems],

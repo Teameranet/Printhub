@@ -72,15 +72,23 @@ const orderSchema = new mongoose.Schema(
         quantity: Number,
       },
     ],
-    files: [
-      {
-        originalName: String,
-        filename: String,
-        mimeType: String,
-        size: Number,
-        path: String,
-      }
-    ],
+    files: {
+      type: [
+        {
+          originalName: String,
+          filename: String,
+          mimeType: String,
+          size: Number,
+          path: String,
+        }
+      ],
+      validate: [
+        function (val) {
+          return val.length > 0;
+        },
+        'At least one file is required'
+      ]
+    },
     notes: {
       type: String,
       maxlength: [500, 'Notes cannot exceed 500 characters'],

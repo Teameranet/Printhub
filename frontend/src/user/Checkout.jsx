@@ -162,9 +162,15 @@ export const Checkout = () => {
                     form.append('razorpayOrderId', razorpayOrderId);
                 }
                 if (formData.pickupDate) form.append('notes', `Pickup: ${formData.pickupDate} ${formData.pickupTime || ''}`);
+                
                 if (item.file instanceof File) {
                     form.append('files', item.file);
+                } else {
+                    alert(`File for "${item.name || 'document'}" is missing. This usually happens after a page refresh. Please go back and re-upload your files.`);
+                    setLoading(false);
+                    return;
                 }
+
                 if (isGuest) {
                     form.append('guestName', formData.fullName.trim());
                     form.append('guestPhone', formData.mobile.trim());
